@@ -1,0 +1,9 @@
+
+Step 1: Downnload HBase in Standalone Mode
+------------------------------------------
+(x) Download from Apache Mirrors ... http://www.apache.org/dyn/closer.lua/hbase/
+(x) $> tar xzvf hbase-1.4.6-bin.tar.gz
+(x) $> cd hbase-1.4.6/
+(x) $> vim conf/hbase-env.sh & export JAVA_HOME=/usr/
+(x) $> vim conf/hbase-site.xml
+ 

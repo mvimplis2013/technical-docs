@@ -1,0 +1,64 @@
+Firewall EVERYwhere ... for ALL servers
+
+Linux Administration ... Running a Firewall & Manage It
+
+Security is ON ... Every Server for IP4 & IP6
+
+Amazon & Google ... Have their own implementations (Do Not Use Your Firewalls)
+
+Defense in Depth (or Castle Approach) ...
+    Layering Tactic/ Several Independent Methods Against a Particular Attack
+    My Provider Not Enough/ Add My Tools
+
+Debian is ... Need a Firewall Running on Server ? Use IPtables
+
+Docker is Ugly ... Installing using Official Docs: Adds IPTables rules
+
+Docker application needs: One(1) Virtual Interface "docker0"
+Each Docker Container: New Virtual Interface for Every Running
+
+Start/ Stop/ Restart Container ... IPtables Rules Constantly Change ... 
+Every Tiny Change ... New IPtables Rules ... BAD !
+
+PRVENT DOCKER FROM ADDING ARBITRARY ENTRIES 
+-------------------------------------------
+Create folder: /etc/systemd/system/dcoker.service.d
+Open file: /etc/systemd/system/docker.service.d/noiptables.conf
+
+[Service]
+ExecStart=
+ExecStart=/usr/bin/docker daemon -H fd:// --iptables=false
+
+Ensure that you launch "docker" daemon with 
+  --iptables=false
+Prevent Docker for Modifying the iptables
+  
+Apply Changes ... Restart Docker Daemon
+1) Most Linux distros use "systemctl":
+   $> sudo systemctl restart docker
+2) Using the old "service" command:
+   $> sudo service docker restart
+
+CAUTION with docker daemon restart ... existing ruleset remains 
+   Ugly docker entries for eact container
+   
+   Manually ... $> iptables -F
+   Best Practice ... $> reboot now
+
+   List current ruleset ... $> iptables -L
+
+IMPORTANT
+---------
+Adding Rules using ... $> iptables
+Problem ... Not Persistent (Reboot Server and Loose All Changes)
+
+Adding Rules Persistent ... $> apt-get install iptables-persistent 
+
+Add IPv4 Rules: /etc/iptables/rules.v4
+Add IPv6 Rules: /etc/iptables/rules.v6
+
+Congrats !!!! 
+Have a Firewall Running on Host .... BUT NO RULES 
+
+Modify Files ... rules.v4 & rules.v6   
+

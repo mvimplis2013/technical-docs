@@ -1,0 +1,20 @@
+$> cd ~
+$> cd go/bin
+ 
+$> prometheus --config.file prometheus.yml
+
+Username/ Password = sammy/ sammy
+
+Successful logged in ...
+
+Status-menu/ Targets ==> {Prometheus , Node_Exporter} @ UP state
+
+Graph-menu ==> Expression Browser ==> Exression Field ... 
+Node_Memory_MemAvailable_bytes 
+
+Convert to Megabytes: 
+Node_Memory_MemAvailable/1024/1024
+($> free -h)
+
+Prometheus Query Language ==> Apply aggregation functions
+avg_over_time(node_memory_MemAvailable[5m])/1024/1024 

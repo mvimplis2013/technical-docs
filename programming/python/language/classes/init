@@ -1,0 +1,3 @@
+
+__init(self)__:
+  self.data = []

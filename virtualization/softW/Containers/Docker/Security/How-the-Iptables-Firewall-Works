@@ -1,0 +1,11 @@
+Good firewall tool ... Iptables
+
+Replacement ... nftables
+
+How Iptables Works 
+------------------
+Comparing network traffic ... against a set of rules 
+
+Criteria used ... packet protocol type, source or destination address or port
+
+Target ... when dfined pattern matches, action taken

@@ -1,0 +1,46 @@
+------------------------------------
+~~~~~~~~  PASSIVE Checks ~~~~~~~~~~~
+------------------------------------
+
+* Introduction
+
+Use Nagios to monitor {hosts,services} ... regularly scheduled active checks
+
+ACTIVE Checks => 
+(1) Poll a device or service
+(2) For status information
+(3) Every X minutes
+
+PASSIVE vs Active Checks => passive checks are performed by EXTERNAL appls
+(1) Passives initiated and performed by EXTERNAL applications
+(2) Passive check results are submitted to Nagios for processing  
+
+* Use Cases
+(1) Asynchronous Services => not effective polling on regular basis
+(2) Monitoring services behind Enterprise firewall 
+
+* How Passive Checks Work
+(1) An external application checks the status of host/ service
+(2) The External application writes results of check to file
+(3) The next time Nagios reads the external command file will place results
+(4) Nagios periodically execute a check result reaper and check the queue
+
+<External Command File>
+
+* Enabling Passive Checks
+Set config-parameter: accept_passive_service_checks = 1
+
+x Submitting Passive Service Check Results
+(1) External-Command-File
+(2) [<timestamp>] PROCESS_SERVICE_CHECK_RESULT;<host_name>;<svc_description>;..
+    <return_code>;<plugin_output>
+(3) <timestamp> is time in time_t format (seconds since UNIX epoch)
+    <host_name> is short name of host associated with examined service
+    <svc_description> is service-description as specified in service-definition
+    <return_code> of check (0=OK, 1=WARNING, 2=CRITICAL, 3=UNKNOWN)
+    <plugin_output> is text output of service-check
+
+x Submitting Passive Host Check Results
+(1) External Command File
+(2) [<timestamp>] PROCESS_HOST_CHECK_RESULT;<host_name>;<host_status>;...
+    <plugin_output>

@@ -1,0 +1,24 @@
+Using the Expression-Browser
+----------------------------
+1) Start Prometheus with the configuration file you created
+2) Give it a couple of seconds to collect data:
+     => About itself from its own HTTP metrics endpoint
+3) Navigate to built-in expression browser: 
+     => http://localhost:9090/graph
+4) Choose "Console" View & Enter a metric into 
+     => "Expression" ... prometheus_target_interval_length_sec
+     => Actual amount of time between target scrapes
+     => Drop down list with availables to select
+5) Returns a number of different time series
+     => { interval = ... , quantile = ... }
+6) If we are only interested in the 99th percentile latencies
+     => prometheus_target_interval_length_seconds{quantile="0.99"}
+5) Count the number of returned time series
+     => count(prometheus_target_interval_length_seconds)
+
+Using the Graphing Interface
+----------------------------
+1) Go to ... http://localhost:9090/graph
+2) Use the ... "Graph" tab
+3) Enter the expression to graph the ... per-second rate of chunks in self-scraped
+     => rate(prometheus_tsdb_head_chunks_created_total[1m]) 

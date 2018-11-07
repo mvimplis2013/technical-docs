@@ -1,0 +1,60 @@
+Check if "systemd" package is installed 
+---------------------------------------
+$> sudo dpkg -l | grep systemd
+
+(Re)Install systemd package
+---------------------------
+$> sudo apt-get install systemd
+$> sudo apt-get reinstall systemd
+
+List the Full Path of Files Installed 
+-------------------------------------
+$> sudo dpkg -L systemd
+
+---------------------------------------------
+* How to Create a New Custom System Service *
+---------------------------------------------
+-- 01
+Edit New File: "/etc/systemd/system/prometheus.service"
+------------------------------------------------------
+
+Comment -> Run your service AFTER the network being started
+
+[Unit]
+Description=Prometheus
+Wants=network-online.target
+After=network-online.target
+
+Comment -> The "Type=simple" service unit:
+   (x) Does not block on a start operation 
+   (x) Once the first process exits, goes from "active" to "inactive"
+   (x) Bad because no way to distinguish situations "exited on start"
+       VS "crashed after 500ms"
+  
+[Service]
+User=prometheus
+Group=prometheus
+Type=simple
+ExecStart=/usr/local/bin/prometheus \
+  --config.file /etc/prometheus/prometheus.yml \
+  --storage.tsdb.path /var/lib/prometheus/ \
+  --web.console.templates=/etc/prometheus/consoles
+  --web.console.libraries=/etc/prometheus/console_libraries
+
+[Install]
+WantedBy=multi-user.target
+
+- 02
+- Start the New Service 
+-----------------------
+$> sudo systemctl daemon-reload
+$> sudo systemctl start prometheus
+$> sudo systemctl status prometheus
+
+Error: If the service's status isn't ACTIVE => Resolve the problem !!!
+
+Next Step: Enable the service to start on every boot
+$> sudo systemctl enable prometheus 
+
+
+

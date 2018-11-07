@@ -1,0 +1,11 @@
+Software still using the INIT system:
+------------------------------------
+$> ls /etc/init.d
+
+Ubuntu switched over to "systemd":
+---------------------------------
+$> systemctl -l --type service --all
+
+Services listed by "upstart":
+$> service --status-all   # for sysv init scripts
+$> initctl list           # for Upstart jobs

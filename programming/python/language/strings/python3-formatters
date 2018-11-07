@@ -1,0 +1,34 @@
+str.format() => { Variable Substitution , Value Formatting }
+
+Example:
+ Single Placeholder ... print( "Sammy has {} balloons.".format(5) )
+ Multiple Placeholders ... 
+   sammy_string = "Sammy loves {} {}, and has {} {}."
+   print( sammy_string.format("open_source", "software", 5, "balloons"))
+
+ Positional Arguments ...
+   sammy_string = "sammy is a {3}, {2} and {1} {0}!"
+   print( sammy_string.format("happy", "smiling", "blue", "shark") )
+
+   Sammy is a shark, blue and smiling happy !
+
+Keyword arguments ...
+   sammy_string = "Sammy the {0} {1} a {pr}."
+   print( sammy_string.format("shark", "made", pr = "pull request") )
+   
+   Sammy the shark made a pull request
+
+Type Specification ...
+   {field_name:conversion}
+
+   Format Specification Mini-Language
+    '<' ... Left-aligned field
+    '>' ... Right-aligned field
+    '=' ... Padding is placed
+    's' ... String format
+    'b' ... Binary
+    'c' ... Character
+    'd' ... Decimal
+    'o' ... Octal
+    'x' ... Hex 
+

@@ -1,0 +1,13 @@
+Regular Expressions 
+  import re
+
+Iterators for Efficient Looping
+  import itertools
+
+Shalow and Deep Copy Operations
+  from copy import copy
+
+Higher-order functions and operation on callable objects
+Higher-order functions --> act-on/ return other functions
+  import functools
+ 

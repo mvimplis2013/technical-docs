@@ -1,0 +1,52 @@
+VLAB-Monitoring ... External-Scanner module
+
+Python code
+
+External Configuration:
+*************** DYNACONF ******************
+https://github.com/rochacbruno/dynaconf
+
+Especially good for "12-Factor Applications"
+1) Strict separation of settings from code
+2) Comprehensive default values
+3) Store parameters in multiple file formats >>> .toml, .json, .yaml, .ini and .py
+4) Sensitive secrets like tokens & passwords can be stored in safe places like .secrets or vault
+5) Parameters can optionally be stored in external services like REDIS 
+6) Simple feature flag system 
+7) Layered [environment] system
+8) Environment variables to override parameters
+9) Support for .env files to automate the export of environment variables
+10) Correct data types
+11) Only one canonical settings module to rule all 
+12) Drop in extension for Flask app.config
+13) Drop in extension for Django conf.settings
+14) Powerful $dynaconf CLI to manage via console
+15) Customizable Validation system to ensure correct config parameters
+16) Allow change of dynamic parameters on the fly 
+
+SOS: Python 3.x is required
+$>pip install dynaconf
+
+SOS: Default installation supports .toml, .py and .json file formats and 
+also environment variables 
+To support YAML add: pip install dynaconf[yaml] OR pip install dynaconf[all] 
+ 
+*********************************** DOT-ENV ***********************************
+https://github.com/theskumar/python-dotenv
+
+Reads the "key/value" ... pair from the ".env" file & adds them to environment variable  
+
+USAGE
+! Accessing config variables in my-python-application !
+Easiest and most common usage ... 
+1) When application starts: load_dotenv()
+2) Load environment variables from a file .env in {current directory && parents && specified path}
+3) Call Python standard "os" module ...  os.getenv()
+4) Check ".env" file:
+     # A comment and will be ignored
+     REDIS_ADDRESS=localhost:6379
+     MEANING_OF_LIFE=42
+     MULTILINE_VAR="hello\nworld"
+   Optionally you can EXPORT each line and allow you to $>source .env:
+     EXPORT REDIS_ADDRESS=localhost:6379
+5) POSIX variable expansion 

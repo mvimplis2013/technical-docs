@@ -1,0 +1,11 @@
+List Byobu Current Sessions with:
+--------------------------------
+$>byobu list-session
+
+session_1:1 windows (created Tue Feb 6 18:05:35 2018)
+
+Kill a Single Byobu Session:
+---------------------------
+$>byobu kill-session -t <session_name>
+
+$>byobu kill-session -t session_1 

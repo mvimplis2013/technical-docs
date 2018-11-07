@@ -1,0 +1,90 @@
+layer 3 connection -> bridge connection with IP routing
+
+Network Bridge ... 
+  is a "computer networking device"
+  create a single AGGREGATE netrwork = multiple communication networks or segments
+
+Bridging is !!!! DISTINCT !!!! from Routing ...
+  
+Routing is ...
+  Selecting a path for traffic in a network
+  or a path between multiple networks
+   
+  => Allows multiple networks to communicate independently 
+  => But remain separate
+
+In OSI model ...
+  Bridging is "Data Layer/ 2"
+
+Four(4) types of bridging ...
+  1) Simple Bridging: a frame-by-frame decision whether to forward (two networks)
+  2) Multiport: connects multiple networks (basis for switches)
+  3) Transparent: uses a table called "forwarding information base"
+  4) Source-route
+
+Build a LAN-to-LAN VPN Using L3 IP Routing
+------------------------------------------
+Create a layer 3 connection ... between 2 or more remote networks .. using bridges
+
+Build a LAN-to-LAN VPN Using L2 Bridge
+======================================
+Create a layer 2 connection ... between 2 or more remote networks .. using a bridge 
+
+About Bridge-Connected LAN VPNs
+-------------------------------
+VPN-Server + VPN-Bridge = Layer 2 connection between an Ethernet LAN and Ithernet
+
+Wide Area Ethernet = Extend an Ethernet segment
+
+VPN-Server + VPN-Bridge = Broadband connection to Internet = SSL connection between LANs
+
+Local Bridges 
+Cascade Connections 
+
+Virtual Hubs ...
+  SoftEther VPN-Server can create Many Virtual Hubs
+
+Creating Virtual Hubs
+  Create & Delete by Entire VPN Server Administrator
+  When created ... delegate administration into another party (by providing Virtual Hub administration pass)
+  New Virtual Hub Details ... Name/ Admin-Pass/ 
+  vpncmd -> HubCreate 
+
+After Virtual Hub Create ... Select & Manage Virtual Hub
+  vpncmd -> Hub
+  Online/ Offline Status ... VPN Connection from Client to Hub is Possible/ Not Possible
+  When the Virtual Hub = Cascade Connection Settings 
+
+Cascade Connection Functions 
+  Cascade Connections
+    Site-to-Site VPN 
+    A Virtual-Hub{ inside a }Virtual-Server --> connects to --> Other Virtual-Hubs on Other Computers
+    Virtual Hubs are ... NOT originally connected are ISOLATED from the perspective of Layer 2 network
+    Run two Virtual Hubs as a single segment over a public IP network (Internet) 
+      Cascade connection is ... Connect Virtual Hubs with a very long Etehrnet cable
+
+  Cascading a remotely located Virtual-Hub-A with Virtual-Hub-B: 
+    Enables free layer-2 (Ethernet) communication:
+      Virtual-Network-Adapter with Hub-A  
+        A local bridge with {Network Computer with Hub-A}
+      Virtual-Network-Adapter with Hub-B 
+        A local bridge with {Network Computer with Hub-B}
+      Local Computres {A & B} can communicate IRRESPECTIVE actual network topology
+    VPN-Client is bridged to a Virtual-Hub 
+        the Virtual-Hub is cascade connected to another Hub
+          Arrived to destination computer
+    Cascade Connection Initiator -> Internet -> {Many Hubs} -> Cascade Connection Responder
+
+  At least two(2) Virtual Hubs: Initiating cascade VS Receiving cascade & Process
+    Process = Common VPN Session 
+
+Creatingh a Cascade VPN Connection 
+ 
+ 
+
+Combining Bridge Connections and IP Routing 
+-------------------------------------------
+=> VPN-Server: Virtual Layer 3 Switching Capabilities
+=> IP routing: Between multiple Virtual Hubs (under Same VPN-Server)
+=> NICE because ... large scale LAN-to-VLAN where Each Individual LAN has multiple IP networks  
+ 

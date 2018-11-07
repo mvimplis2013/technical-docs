@@ -1,0 +1,26 @@
+Why Container Deployment ?
+It is easily scaled, updated and moved across hosts and clouds.
+
+Container --> Virtualized Network Interfaces
+Difficult to have Firewall Rules && IPTables
+
+HOW CAN I DO IT MANUALLY ?
+--------------------------
+Need you are knowledgeable of ... Linux Networking
+No plans for FREQUENT updates of ... Containers + Hosts
+
+1) GOOD Docker Behavior ... Do not OVERWRITE the Host Server Rules 
+   -iptables = false
+
+2) Rules you create ... PERSISTENT storage
+
+3) Allow Forwarding ... lo interface, ICMP, docker
+
+4) Add Firewall Rules Incoming, Outgoing, Routing ... Containers Access WEB
+
+5) Load Firewall Rules
+
+6) Allow/ Restrict ICC @ Host ... Inter Container Communication    
+   -icc = true
+
+

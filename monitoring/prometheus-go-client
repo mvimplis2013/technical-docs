@@ -1,0 +1,189 @@
+Each source file begins with a "package" declaration:
+... package main
+
+Package "main" is special => Defines a standalone executable program (not a libray)
+
+A list of other packages the program imports:
+... import (
+ "flag"
+ "log"
+ "math"
+ "math/rand"
+ "net/http"
+ "time"
+
+ "github.com/prometheus/client_golang/prometheus",
+ "github.com/prometheus/client_golang/prometheus/promhttp"
+)
+
+Variable declaration:
+--------------------
+Long form follows the format: 
+... var <identifier list> <type> 
+... var name, desc string 
+
+Initialized declaration:
+... var <identifier list> <type> = <value list OR initializer expression>
+... var name, desc string = "Earth", "Planet"
+... var radius int32 = 6378
+
+Omitting variable types: during compilation the compiler inferes the type
+... var <identifier list> = <value list or initializer expressions>
+... var name, desc = "Earth", "Planet"
+
+Top-level variables grouped together for greater readability:
+... var (
+...   name string = "Earth"
+...   desc string = "Planet"
+...   radius int32 = 6378
+... )
+
+Prometheus GO-client
+--------------------
+Exports METRICS: The Prometheus client libraries offer four(4) core metric types
+(1) 
+"Counter" is a cumulative metric for monotonically increasing counter.
+Do not use a counter for a value that can decrease (the number of currently running processes)
+(2) 
+"Gauge" is metric that represents a single numerical value that can arbitrarily go Up and Down.
+Gauges are typically used for measured values like temperatures(!) or number-of-currently-running goroutines.
+(3)
+"Histogram" samples observations (like request-durations OR response-sizes) and counts them in configurable buckets.
+It also provides a SUM of all observed values.
+
+A histogram with a base metric name <basename> exposes multiple time series during a scrape:
+... cumulative counters for the observation buckets => <basename>_bucket{le="<upper inclusive bound>"}
+... the Total-Sum of all observed values, exposed as <basename>_sum
+... the count of events that have been observed, exposed as <basename>_count (identical to <basename>_bucket{le="+Inf"})
+
+histogram_quantile() => calculate quantiles from histograms 
+A histogram is also suitable to calculate an APDEX score
+(4)
+A "Summary" samples observations ... calculates quantiles over a sliding time window
+
+A Sumary with a base metric name of <basename> exposes multiple time series during a scrape: 
+... streaming fi-quantiles. where 0<=fi<=1. The fi-quantile is the observation value that ranks at number fi*N among N observations.
+... The essential difference between summaries VS histograms is that summaries calculate streaming fi-quantiles on client-side and expose them directly, while histograms expose bucketed observation counts and the calculation of quantiles happen on server side using the histogram_quantile().
+
+-------------------------------------------------------------------------------
+
+var (
+  cpuTemp = prometheus.NewGauge( prometheus.GaugeOpts{
+    Name: "cpu_temperature_celsius",
+    Help: "Current temperature of CPU.",
+  })
+
+  hdFailures = prometheus.NewCounterVec( prometheus.CounterOpts{
+    Name: "hd_errors_total",
+    Help: "Number of hard-disk errors.",
+  },
+  []STRING{"device"},
+  )
+) 
+ 
+func init() {
+  // Metrics have to be registered to be exposd
+  prometheus.MustRegister(cpuTemp)
+  prometheus.MustRegister(hdFailures)
+}
+
+func main() {
+  cpuTemp.Set(65.3)
+  hdFailures.With(prometheus.Labels{"device":"/dev/sda"}).Inc()
+
+  // The Handler function provides a default handler to expose metrics 
+  // via an HTTP server. "/metrics" is the usual endpoint for that.
+  http.Handle("/metrics", promhttp.Handler())
+  log.Fatal(http.ListenAndServe(":8080", nil))
+}     
+  
+----------------------------------------------------------------------------
+
+package main
+
+import (
+  "flag"
+  "log"
+  "math"
+  "math/random"
+  "net/http"
+  "time"
+
+  "github.com/prometheus/client_golang/prometheus"
+  "github.com/prometheus/client_golang/prometheus/promhttp"
+)
+
+var (
+  addr = flag.String("listen-address", ":8080", "The address to listen on for HTTP requests.")
+  uniformDomain = flag.Float64("uniform.domain", 0.0002, "The domain for the uniform distribution.")
+  normDomain = flag.Float64("normal.domain", 0.0002, "The domain for the normal distribution.")
+  normMean = flag.Float64("normal.mean", 0.0001, "The mean for the normal distribution.")
+  oscillationPeriod = flag.Duration("oscillation-period", 10*time.Minute, "The duration of the rate oscillation period.")
+)
+
+var (
+  // Create a summary to track fictional interservice RPC latencies for three 
+  // distinct services with different latency latency distributions. These 
+  // services are differentiated via a "service" label.
+  rpcDurations = prometheus.NewSummaryVec( prometheus.SummaryOpts{
+    Name: "rpc_durations_seconds", 
+    Help: "RPC latency distributions.",
+    Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+  },
+  []string{service"},
+
+  // The same as above, but nopw as a histogram, and only for the normal 
+  // distribution. The buckets are targeted to the parameters of the 
+  // normal distribution with 20 buickets centered on the mean, each 
+  // half-sigma wide.
+  rpcDurationsHistogram = prometheus.NewHistogram(prometheus.HistogramOpts{
+    Name: "rpc_durations_histogram_seconds", 
+    Help: "RPC latency distributions.",
+    Buckets: prometheus.LinearBuckets(*normMean-5**normDomain, 0.5**normDomain, 20),
+})
+)
+ 
+func init() {
+  // Register the summary and the histogram with Prometheus's default registry
+  prometheus.MustRegister(rpcDurations)
+  prometheus.MustRegister(rpcDurationsHistogram)
+}
+
+func main() {
+  flag.Parse()
+
+  start := time.Now()
+
+  oscillationFactor := func() float64 {
+    return 2 + math.Sin(math.Sin(2*math.Pi*float64(time.Since(start)/float64(*oscillationPeriod)))
+}
+
+  // Peridically record some sample latencies for the three services
+  go func() {
+    for {
+      v := rand.Float64() * *uniformDomain
+      rpcDurations.WithLableValues("uniform").Observe(v)
+      time.Sleep(time.Duration(100*oscillationFactor()) * time.Millisecond)
+    }
+  }()
+
+  go func() {
+    for {
+      v := (rand/NormFloat64() * *normDomain) + *normMean
+      rpcDurations.WithLabelValues("normal").Observer(v)
+      rpcDurationsHistogram.Observer(v)
+      time.Sleep(time.Durations(75*oscillationFactor()) * time.Millisecond)
+    }
+  }()
+
+  go func() {
+    for {
+      v := rand.ExpFloat64() / 1e6
+      rpcDurations.WithLabelValues("exponential").Observe(v)
+      time.Sleep(time.Duration(50*oscillationFactor()) * time.Millisecond)
+    }
+} ()
+
+// Expose the registered metrics via the HTTP
+http.Handle("/metrics", promhttp.Handler())
+log.Fatal(http.ListenAndServe(*addr, nil))

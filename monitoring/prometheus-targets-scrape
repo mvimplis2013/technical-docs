@@ -1,0 +1,58 @@
+Start up some sample targets for Prometheus to scrape 
+-----------------------------------------------------
+1) Select Prometheus client library:
+    => git clone https://github.com/prometheus/client_golang.git
+
+2) Includes an example which exports RPC latencies for three services:
+    ==> cd client_golang/examples/random
+    ==> go get -d
+    ==> go build
+
+3) Start 3 example targets in separate terminals:
+    ==> Terminal 1: $>./random -listen-address=:8080
+    ==> Terminal 2: $>./random -listen-address=:8081
+    ==> Terminal 3: $>./random -listen-address=:8082
+
+4) Check example targets are listening on:
+    ==> Browser 1: http://localhost:8080/metrics
+    ==> Browser 2: http://localhost:8081/metrics
+    ==> Browser 3: http://localhost:8082/metrics
+
+Congigure Prometheus to Monitor/Scrape the Sample Targets
+---------------------------------------------------------
+1) Group all three endpoints into one(1) JOB called "example-random" 
+    ==> cd /home/miltos/go/bin/
+    ==> vim ./prometheus.yml
+    ==> scrape_configs:
+          - job_name: 'example-random'
+
+            # Override the global default and scrape targets every 5 secs
+            scrap_interval: 5s
+
+            static_configs:
+              - targets: ['localhost:8080', 'localhost:8081']
+                labels:
+                  group: 'production'
+
+              - targets: ['localhost:8082']
+                labels:
+                  group: 'canary'
+
+2) The first two(2) endpoints are "production" targets
+   The third one represents a "canary" instance 
+    
+3) Restart Prometheus instance 
+4) Verify Prometheus has information about time series from these example ends
+     ==> http://localhost:9090/graph , rpc_durations_seconds
+
+Configure Rules for Aggregating Scraped Data into New Time Series
+-----------------------------------------------------------------
+(x) Queries that aggregate over thousands of time series can get slow ad-hoc
+(x) Prerecord expressions into new persisted time series with recording rules
+(x) Record the ... Per-Second Rate of example-RPCs over a window of 5 mins
+    => rate(rpc_durations_seconds_count[5m])
+(x) Averaged over all instances but preserving job and service
+    => avg(rate(
+(x) Create a new metric :
+    => New file: prometheus.rules.yml
+    => job_service:rpc_durations_seconds_count:avg_rate5m

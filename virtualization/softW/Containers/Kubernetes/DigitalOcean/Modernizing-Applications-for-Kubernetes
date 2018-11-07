@@ -1,0 +1,308 @@
+
+Modern Stateless Applications .. Running in Containers && Managed by Container-Clusters
+
+Containerizing ... Migrating Applications from VirtualMachines/ BareMetals to Containers
+
+Stateful applications ... databases
+
+stateless applications ... 
+  Persistent data offloaed -> Service | external data store
+
+easy to run scalable, observable and portable applications into cloud 
+
+
+******************************************************************************
+**** Prepare the Application for Migration / for Kubernetes Orchestration ****
+******************************************************************************
+
+STEP 1: Extract Configuration Data 
+----------------------------------
+Extract application configuration from ... application code
+
+Any information that varies across deployments & environments :
+  service endpoints, database addresses, credentials
+
+Environments: Staging & Production
+
+Never hardcode - store in a separated location:
+  local file , environment variable , external key-value store
+ 
+Serious Security Risk !!!
+
+
+STEP 2: Offload Application State 
+---------------------------------
+Cloud Native Applications ... run in containers && 
+  Are orchestrated by cluster software (Docker Swarm or Kubernetes)
+
+Horizontal redundancy ... Applications designed in a stateless fashion:
+  Respond to client requests WITHOUT storing data locally
+  Any time if app container is destroyed --> critical data is not lost !
+
+Use external data stores ... like REDIS for session data
+
+Stateful applications --> require persistent data store (replicated MySQL database)
+  Kubernetes attach Persistent-Block-Storage-Volumes to containers & Pods
+  Pod is restarted ... access the same persistent volume ... use STATEFULSET workload
+
+"StatefulSets" ... ideal for deploying databases and other long-running data stores to Kubernetes
+
+Stateless containers ... maximum portability + full use of cloud resources
+  Scheduler can quickly scale your-application up & down  
+
+
+STEP 3: Implement Health Checks
+-------------------------------
+Three(3) different methods for probes on running PODs:
+* HTTP: Kubelet probe an HTTP GET request at endpoint (like /health) ... 
+          Success if Response Status from 200 to 399
+* Container Command: Kubelet executes a command inside container ... 
+          Success if exit code is 0
+* TCP: Kubelet probe attempts to connect to your-container on a specified port ...
+          Success if connection established
+
+> pod_spec.yaml
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 80
+    initialDelaySeconds: 5
+    periodSeconds: 2
+
+
+STEP 4: Instrument Code for Logging and Monitoring
+--------------------------------------------------
+Publish telemetry and logging data 
+
+Build-in features: Response duration & error rates
+
+Useful tool to monitor my-service is "Prometheous" ... 
+  Open-spurce hosted by Cloud-Native-Computing-Foundation (CNCF)
+  My-Code is Flask Python framework ... use the Prometheus Python client .. 
+    Add decorators to your request processing functions
+  Metrics .. scrabed by Prometheus at HTTP endpoint (like /metrics)
+
+Minimal set of metrics for alerting
+RED method {
+  Rate: Number of requests , 
+  Errors: Number of errors, 
+  Duration: The amount of time to serve
+} 
+
+Logging in a distributed cluster-based environment ...
+  Remove hardcoded configuration {log folders, log files}
+  Log directly to stdOut/ Error
+  
+Logging is ... A Continuous-Event-Stream or Sequence-of-Time-Ordered-Events
+  FORWARDED into a logging layer like: 
+    EFK (Elasticsearch, Fluentd, Kibana) stack 
+
+STEP 5: Build Administartion Logic into API
+------------------------------------------- 
+When containers are Up & Running ... No longer SSH access 
+
+Best Practice: Containers should be treated as IMMUTABLE objects -> 
+  Manual Administration should be avoided in Production Environment
+  You must perform one-off administrative tasks via the APIs
+
+*****************************************
+***  Containerizing your Application  ***
+*****************************************
+Package your-application into a container
+
+STEP 1: Explicitly Declare Dependencies
+---------------------------------------
+Take stock of software and operating system dependencies : my-application needs
+
+Dockerfile .. explicitly version every piece of software 
+  Explicitly declare parent image, software library, programming language
+  Avoid the LATEST tags & Unversioned packages
+
+STEP 2: Keep Image Sizes Small
+------------------------------
+My-application is Containerized ...
+My-container is Published to Registry ...
+Pull & Deploy to Kubernetes cluster ... Use Pod Workload
+
+What is POD ... the smallest deployable unit in Kubernetes (not a Container)
+
+POD = Application-Container/ Main-Function + Sidecar-Containers/Helper-Functions
+
+All Containers in POD === Share {Storage-Resources, Network-Namespaces, and Port-Space} 
+
+Nice POD Workload .. define "INIT Containers"
+
+Specialized Containers that run < Before App-Containers
+
+PODS RollOut ... use Deployments 
+
+*******************************  DEPLOYMENTS ****************************
+A Deployment controller => Declarative updates for PODs and ReplicaSets 
+
+Describe: The Desired State
+Actual State of PODs 
+Kubernetes: Deployment-Controller changes actual to desired state/ at a controlled rate
+
+Deployment #01: Create a ReplicaSet: Bring Up Three(3) NGINX Pods
+--------------
+>> controllers/nginx-deployment.yaml
+>> apiVersion: apps/v1
+>> kind: Deployment
+>> metadata: 
+>>   name: nginx-deployment
+>>   labels:
+>>     app: nginx
+>> spec:
+>>   replicas: 3
+>>   selector: 
+>>     matchLabels:
+>>       app: nginx
+>>   template:
+>>     metadata:
+>>       labels:
+>>         app: nginx
+>>     spec:
+>>       containers:
+>>       - name: nginx
+>>         image: nginx:1.15.4
+>>         ports:
+>>         - containerPort: 80
+
+the TEMPLATE field contains:
+  x The PODs are labeleted ... app: nginx
+  x The POD template's specification field (.template.spec) ... 
+       will run only ONE container, "nginx"
+       Run the "nginx" image at version 1.15.4
+       Open port=80 so that the container can send and accept traffic
+
+How to create this Deployment:
+  $> kubectl create -f https://k8s.io/examples/controllers/nginx-deployment.yaml
+
+List all: 
+  $> kubectl get deployments
+
+NAME               DESIRED  CURRENT  UP-TO-DATE   AVAILABLE  AGE
+nginx-deployment   3        0        0            0          1s
+
+NAME is the name of deployments in my-cluster
+DESIRED the desired number of replicas 
+CURRENT how many replicas are currently running
+UP-TO-DATE how many replicas have been updated to achieve desired state
+AVAILABLE how many replicas are available to users
+AGE amount of time application running
+
+Deployment rollout status:
+  $> kubectl rollout status deployment.v1.apps/nginx-deployment
+  $> kubectl get deployments
+     DESIRED = 3 / CURRENT = 3 / UP-TO-DATE = 3 / AVAILABLE = 3
+
+See the ReplicaSet (rs) created by the deployment:
+  $> kubectl get rs 
+[DEPLOYMENT-NAME]-[POD-TEMPLATE-HASH-VALUE] ... nginx-deployment-2035384211
+
+What are the labels automatically generated:
+  $> kubectl get pods --show-labels
+
+POD-template-hash label ... when deployment creates a ReplicaSet
+
+Updating a Deployemnt 
+---------------------
+Deployment rollout trigger ... only if ".spec.template" is changed {
+  labels + container images
+} 
+
+How to update nginx Pods ?
+1) $> kubectl set image deployment.v1.apps/nginx-deployemnt nginx=nginx:1.9.1 --record
+2) $> kubectl edit deployment.v1.apps/nginx-deployment
+      change .spec.template.spec.containers[0].image <from> nginx:1.7.9 <to> nginx:1.9.1
+
+SOS : Check a new ReplicaSet is created and old ReplicaSet is scalled down:
+   $> kubectl get rs 
+
+Deployment controller => Ensures Only-a-Certain number of Pods may be down (at least 25% are up)
+Deployment controller => Ensures Only-a-Certain number of Pods above desired (at most 25% more)
+
+$ kubectl describe deployments
+   Check for "Events" section
+     First Scale-Up to 1 and after Scaled-Down to 2
+
+Rollover (multiple updates in-flight) 
+--------
+Deployment-Controller --> Found a New Deployment Object !
+New ReplicaSet to bring-up desired pods
+
+***********************************
+**** ROLLING BACK A DEPLOYMENT **** 
+***********************************
+Not stable deployment ... crash looping 
+
+Important ... All of the deployment's rollout history is kept in the system ... Roolback anytime
+
+When a deployment-revision is created ???
+Only when ".spec.temmplate" is changed 
+
+Stuck rollout ... in case of typos : nginx:1.91 {instead of} nginx:1.9.1
+
+Checking Rolout History of a Deployment
+---------------------------------------
+What are the revisions of this deployment ?
+$> kubectl rollout history deployment.v1.apps/nginx-deployment 
+>> REVISION/ CHANGE-CAUSE
+
+How to specify the CHANGE-CAUSE message:
+1) Annotating the deployment
+    $> kubectl annotate deployment.v1.apps/nginx-deployment kubernetes.io/change-cause= ....
+         "image updated to 1.9.1"
+2) Append the --record flag to save the kuctl command
+3) Manually editing the manifest of the resource
+
+See the details of each revision:
+    $> kubectl rollout history deployment.v1.apps/nginx-deployment --revision=2 
+
+Rolling back to a PREVIOUS Revision
+-----------------------------------
+Not happy with current rollout & rollback to !!! previous !!!! revision:
+  $> kubectl rollout undo deployment.v1.apps/nginx-deployment  
+
+Rollback to a !!! specific !!! revision:
+  $> kubectl rollout undo deployment.v1.apps/nginx-deployment --to-revision=3 
+
+The Deployment is now rolled back to previous stable revision:
+  $> kubectl get deployment nginx-deployment
+
+*********************************
+***** Scaling a Deployment ******
+*********************************
+Horizontal POD:
+  $> kubectl scale deployment.v1.apps/nginx-deployment --replicas=10
+
+If autoscaling is enabled then select minimum and maximum number of PODs based on CPU utilization:
+  $> kubectl autoscale deployment.v1.apps/nginx-deployment --min=10 --max=15 --cpu-percent=80
+
+******************************************
+**** Pausing & Resuming a Deployment *****
+******************************************
+Have one or more updates ... Pause a deployment ... Apply changes ... Resume Deployment
+$ kubectl get deploy 
+$ kubectl get rs
+
+Pause the Deployment: 
+  $> kubectl rollout pause deployment.v1.apps/nginx-deployment 
+  $> kubectl set image deployment.v1.apps/nginx-deployment nginx=nginx:1.9.1
+
+Perform as many updates as you wish:
+  $> kubectl set resources deployment.v1.apps/nginx-deployment -c=nginx --limits=cpu=200m,
+       memory=512Mi
+ 
+Resume the Deployment and observe a new replicaSet:
+  $> kubectl rollout resume deployment.v1.apps/nginx-deploymentr
+
+Deployment status
+-----------------
+Various states during Deployment lifecycle:
+1) Creates a new ReplicaSet 
+2) Is ScalingUp to ReplicaSet
+
+
+
+

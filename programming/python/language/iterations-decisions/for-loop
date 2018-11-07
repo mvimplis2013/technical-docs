@@ -1,0 +1,5 @@
+for <variable> in <items>:
+	<statements-suite>
+
+for name in names:
+	print(name)

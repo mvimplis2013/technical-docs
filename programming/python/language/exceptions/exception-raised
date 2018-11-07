@@ -1,0 +1,18 @@
+If we want our program to retain control ... An exception is raised
+
+# Catching Exceptions
+try:
+  ride_number_text = input('Please enter the ride number you want:')
+  ride_number = int(ride_number_text)
+  print('You have entered', ride_number)
+except ValueError:
+  print('Invalid Number')
+
+Keywords: except, Exception-Handler
+
+Layout 
+  try:
+    <statements>
+  except <name>:
+    <statements
+ 

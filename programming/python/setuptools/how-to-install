@@ -1,0 +1,11 @@
+python setup.py install 
+
+Parent-Folder ==> setup.py
+
+<python setup.py install --update>
+
+New folders: 
+<build>
+<dist>
+<application-name>
++ requirements.txt 

@@ -1,0 +1,19 @@
+Prometheus only scrapes exporters defined in "scrape_configs" portion
+---------------------------------------------------------------------
+$> sudo nano /etc/prometheus/prometheus.yml
+
+...
+scrape_configs:
+  - job_name: 'prometheus'
+    scrape_interval: 5s
+    static_configs:
+      -targets: ['localhost:9000']
+
+  - job_name: 'node_exporter'
+    scrape_interval: 5s
+    static_configs: 
+      - targets: ['localhost:9100']
+
+Restart Prometheus with new configuration
+$> sudo systemctl restart prometheus
+$> sudo systemctl status prometheus

@@ -1,0 +1,82 @@
+What Is a Firewall
+------------------
+Filtering Incoming and Outgoing Network Traffic
+
+Eliminate All Unwanted Network Communication
+
+STATEFUL Software Firewalls .... IPTABLES vs FirewallD
+
+Amazon, Google ... Provide them 
+
+TCP Network Packets
+-------------------
+Transport Control Protocol (TCP)
+
+Move around a network as ... Packets { 
+  Header[From, To, Sequence Number], 
+  Payload
+
+Headers are Important ... Deliver Correctly & Apply Security Rules
+
+Successfully Receiving Incoming TCP Packets ... 
+  The receiver sends Outgoing ACKnowledgment paxckets to sender
+
+Types of Firewalls
+------------------
+1) Packet Filtering (Stateless) , 
+   Inspect individual packets in isolation
+
+2) Stateful ,
+   Collect related packets .. able to analyze connection state
+
+3) Application Layer ,
+   Able to analyze transmitted data and apply firewall rules
+
+Software + Hardware Firewall 
+
+Firewall Rules 
+--------------
+Example #1: 
+Rule A: Accept New and Established Incoming Traffic to Public Network Interface
+        on port 80 and 443 (HTTP and HTTPS web traffic)
+Rule B: Drop Incoming Traffic from IP addresses of the non-technical employees
+        in your office to port 22 (SSH)
+Rule C: Accept New and Established Incoming Traffic from your office IP range 
+        to private network interface port 22 (SSH)
+
+Always : Accept/ Reject/ Drop (what action) 
+         Allow traffic through/ Block the traffic but reply/ 
+                         Block and no reply send
+
+Default Policy
+--------------
+Problem ... A chain of firewall rules ... not explicitly cover every traffic
+
+Use Default 
+
+Icoming VS Outgoing Traffic
+---------------------------
+Incoming traffic to server ... originates elsewhere
+Outgoing traffic ... the server sends
+
+Outgoing important #1 ... always allow the server to send acknowledgments 
+Outgoing important #2 ... downloading updates, database connection
+
+Writing Outgoing Rules
+----------------------
+Outgoing Default Behavior ... Drop (Icoming Accept rules useless)
+
+Rule A: Accept established outgoing traffic to public network on 80 and 443
+Rule B: Accept establisehd outgoing traffic to private network on port 22
+
+For DROP action .. No acknowledgement is needed
+
+Firewall Software and Tools
+---------------------------
+
+[iptables]
+A standard firewall in most Linux distros
+Modern variant ... "nftables"
+ 
+
+   

@@ -1,0 +1,9 @@
+Using a package repository
+(x) Go to ... https://packagecloud.io/Lazin/Akumuli
+(x) Select ... Debian & Manual Installation
+(x) Refresh local package cache ... sudo apt-get update
+(x) Ensure required tools ... 
+    $> sudo apt-get install curl gnupg apt-transport-https
+(x) Install the GPG key that used to sign the repoistory ... 
+    $> curl -L https://packagecloud.io/Lazin/Akumuli.gpgkey | sudo apt-key add -
+

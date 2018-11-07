@@ -1,0 +1,298 @@
+******** WHAT IS KUBERNETES *********
+Kubernetes is ... 1) Open-Source ... containers management
+
+Kubernetes is ... 2) Complete lifecycle of Containerized Applications ... and
+                     Provide Predictability/ Scalability/ and High Availability
+
+My application ... How should it run && How should it interact with other apps
+
+My service .. Scale Up & Down
+My application .. Rolling Update / Switch Traffic between Different Versions
+
+********* KUBERNETES ARCHITECTURE ***********
+LAYERED architecture ... higher layers abstract lower
+
+Have many physical & virtual-machines ... make a cluster & 
+  communicate via private network
+
+Kubernetes Cluster .. where my components are running 
+
+Kubernetes Ecosystem: Master Server + Nodes 
+
+Master Server ... My GATEWAY : Expose an API for users/ client 
+              ... My Doctor : Health check for other components
+              ... My Manager : Decide how to assign work and orchestrate
+
+Nodes/ Workers ... Servers to run workloads
+
+Best Resource Isolation & Flexibility ... Run Apps in Containers
+
+EACH NODE MUST HAVE ... CONTAINER RUNTIME (Docker, rkt)
+
+Hello Node, this is the MASTER speaking ... Create or Destroy a container
+
+Many Containers ... Applications & Services ALL Inside Containers
+
+Kubernetes Final Layer ... User-Defined Application + Plan
+
+***************** MASTER SERVER COMPONENTS ***********************
+Many Master Server Components ... Access Requests 
+  Schedule Workload Containers
+  Manage Cluster-Wide Networking
+  Change Policies {Health Checking, Scaling}
+
+! etcd !
+Globally Available Configuration Store ... "etcd" from CoreOS 
+A LIGHTWEIGHT DISTRIBUTED KEY-VALUE STORE 
+
+Store configuration data that ... need to be addresses by MANY nodes
+
+Service Discovery + All Nodes Updated 
+
+Maintain Cluster State 
+
+! kube-apiserver !
+The Kubernetes API Server ... Main Management Point for Entire Kubernetes Cloud
+
+Do they Agree ??? "etcd" Store & Service Details on Deployed Containers
+
+The BRIDGE for distributed components 
+
+API-Server has .... RESTful interface for easy communication 
+
+Localhost ... "kubectl" 
+
+! kube-controller-manager !
+Manages different controllers ... Cluster State + Routine Tasks + Workloads
+
+Where are Details of Operations/ Services ... Inside "etcd"
+
+"ectd" new information/ details written .... Update the Kubernetes cluster 
+
+! kube-scheduler !   
+Who assigns workloads to ... specific Nodes
+
+Scheduler can read ... What are the workload's operating requirements ?
+Scheduler can analyze ... Current Infrastructure Environment 
+Scheduler can assign ... place load on acceptable node
+
+Total VS Current Allocated Capacity
+
+! cloud-controller-manager !
+kubernetes deployment ... Many Infrastructure Providers ... 
+  What tools Google VS Amazon offer to manage the state of resources 
+
+Kubernetes knows ... Generic Representation of Resources 
+  {Attachable Storage, Load Balanceers, ...}
+  Map Geeric 2 Actual Resources
+  Non-Homogeneous Cloud Providers
+
+I am simple and generic Internally .... Cloud-manager all implication details
+
+************************** NODE SERVER COMPONENTS ******************
+Servers that perform workload ... Inside Running Containers
+
+Few Requirements ... Communicate with Master-Server 
+  Configure Container Networking 
+  Run the Actual Workloads Assigned
+
+! Container Runtime !
+Always each Node has installed & running ... Docker, rkt, runc
+
+Container Runtime is ... Start/ Stop/ Manage Containers & Applications in Core
+
+Unit of Work on Kubernetes Cluster ... Container
+
+! kubelet !
+Node has to contact with Cluster-Group ... service "kubelet"
+
+Kubelet can ... Read/ Write data to control-services && interact "etcd" store
+
+First Message ... "kubelet" contacts master-components ... Authenticated 
+  Response from master to node is ... Manifest 
+  {which workload, what operating conditions}
+
+  kubelet process ... is responsible for maintaining state of work on node
+
+! kube-proxy !
+Many hosts ... Manage individual host subnetting ... small proxy / server
+
+Forward requests to correct containers + Load balancing
+
+****************** kubernetes Objects and Workloads ******************
+Addition layers of abstraction ... CONTAINER is not the End
+
+! Pods !
+Users interact with ...
+
+Most BASIC unit 
+
+Containers are NOT assigned to Hosts !
+One or More Containers .. Tightly Coupled 1+ Containers Encapsulation
+
+Pod --> Containers handled --> Same application
+Pod --> 1+ Containers --> Always scheduled on same node
+Pod --> Share environment , Volumes and IP space
+Pod --> A Single Monolithic Application
+
+Pod --> Main container for general purpose of workload
+Pod --> Helper containers that facilitate 
+Pod --> Good to run isolated in own containers + closely tied (microservices)
+Pod --> Helper container example:
+         pull down files to local filesystem 
+         when changes detected to external repository
+
+DO NOT MANAGE PODS ... USE HIGHER LEVEL OBJECTS
+
+! Replication Controllers and Replication Sets !
+DO NOT USE SINGLE PODS 
+MANAGE GROUPS OF RELATED + REPLICATED PODS
+
+Replication controllers ... Horizontal scaling (increase number of copies)
+Distribute load & Increase availability ... Always use a pod-template 
+
+Replication-Controller = {Pod-template + Control-parameters}
+Replication-Controller Knows ... How to create a new Pod ?
+Replication-Controller is Responsible ... How many Pods are Deployed & Running
+  VS Number of Pods in Configuration
+
+Pod has Failed ? ... Replication-Controller Start New Pod
+
+New s/w version ? ... Replication Controller Rolling Updates One-by-One
+
+Replication-Sets 
+  VS Number of Pods in Configuration
+
+Pod has Failed ? ... Replication-Controller Start New Pod
+
+New s/w version ? ... Replication Controller Rolling Updates One-by-One
+
+Replication-Sets
+  VS Number of Pods in Configuration
+
+Pod has Failed ? ... Replication-Controller Start New Pod
+
+New s/w version ? ... Replication Controller Rolling Updates One-by-One
+
+Replication-Sets
+  VS Number of Pods in Configuration
+
+Pod has Failed ? ... Replication-Controller Start New Pod
+
+New s/w version ? ... Replication Controller Rolling Updates One-by-One
+
+Replication-Sets 
+  VS Number of Pods in Configuration
+
+Pod has Failed ? ... Replication-Controller Start New Pod
+
+New s/w version ? ... Replication Controller Rolling Updates One-by-One
+
+Replication-Sets
+  VS Number of Pods in Configuration
+
+Pod has Failed ? ... Replication-Controller Start New Pod
+
+New s/w version ? ... Replication Controller Rolling Updates One-by-One
+
+Replication-Sets ... Greater Flexibility How the Controller Identifies Pods
+BUT !!! Not able to do ... Rolling Updates
+DO NOT USE THEM DIRECTLY ... there are higher level units
+
+      
+! Deployments !
+You Miltos .... A workload to Directly Create and Manage
+Basic Building Unit ... Replication-Sets + Plans
+
+Why Deployments are Cool ... Only change the configuration and 
+Kubernetes weight-lifting ... Change Replication Sets
+  Manage Transitions between different application versions
+  Maintain Event History
+
+! Stateful Sets !
+Handle ... Ordering && Uniqueness
+
+Finer Deployment ... Persistent data + Stable networking
+
+Data-oriented applications ... Access same volumes ... Rescheduled into New Node
+
+! Daemon Sets !
+Special Pod Controller ... run a pod on each node in cluster (or subset)
+Deploying ... Maintenance
+
+Logs ... Collect & Forward 
+Metrics ... Aggregate 
+Bypass ... Pod scheduling ... All hosts must have 
+
+! Jobs and Cron !
+Workloads type #1 ... Long-running applications 
+Workloads type #2 ... Task-based expecting to end soon
+
+Cron Jobs ... Kubernetes provide an interface to schedule jobs ...
+  In the future / On regular, reoccurring basis
+
+************************* Other Kubernetes Components **************************
+
+! Services !
+Kubernetes service ... Internal load-balancer & Pod Ambassador
+
+Service ... Groups together pods same function ... Handle as Single entity
+
+My Useful Service ... Keep track of all backend containers of a particular type
+Internal user how to contact backend containers ... Use service stable endPoints
+Service abstraction ... Change backend work units as necessary ... Service remains
+
+Set of Pods running Web-Servers .. Accessible from Internet .. Need a Service
+
+Web-Servers Need to ... Store and Retrieve Data .. Internal Service to Database Pods
+
+How to make a service accessable outside of the cluster ?
+Default Service Access Policy ... Only through an INTERNALLY routable address 
+
+1) NodePort configuration ... Open a static port on each node external iface
+Traffic to external port -> Routed automatically to appropriate pods (IP Service)
+
+2) LoadBalancer service ... Create an external load balancer --> Route to Service
+
+! Volumes & Persistent Volumes !
+Challenging task @ Containerized environments -> Reliably sharing data and 
+  Guaranteeing the availability between 
+
+Container Runtimes ... 
+  Good !!! Provide some mechanism to attach storage BEYOND container lifetime 
+  Bad  !!! Not flexible
+
+Kubernetes own Volume Abstraction for Pods ...
+  Share data ... All Containers@Pod 
+  Remain Available ... In case a Container deleted
+  Not Available ... Pod is terminated 
+NOT TRULY PERSISTENT DATA
+
+Kubernetes Persistent Volume ...
+  Not tied to Pod lifecycle
+
+Administrators Configure .. A Storage for Cluster - Users can request & claim for pods
+
+A pod is done .. Volume Reclamation policy .. Keep volume until manually deleted ?
+
+Allocate greater amount of data > Locally Available
+
+! Labels and Annotations !
+An organizational abstraction .. Only 
+
+A semantic tag ... Attached to Kubernetes objects ... Identify as part of a group 
+
+The Controller-based object .. Whih pods shoud operate on 
+
+The Services ... Which backend pods should route requests to
+
+Each Unit ... Many Labels
+
+Annotations ... free-form with less-structured data 
+
+!  
+
+ 
+  
+   
+ 

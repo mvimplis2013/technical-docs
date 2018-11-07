@@ -1,0 +1,59 @@
+****************
+* Introduction *
+****************
+
+How to perform "freshness" checking on results of host & service checks ?
+Ensure that both checks are provided on a regular basis
+Ensure that passive checks are being received as frequently as you want !
+
+************************************
+* How Does Freshness Checking Work *
+************************************
+(1) A freshness threshold for each host/ service
+(2) For each host/ service the age of last check
+(3) If age > threshold => check result is "stale"
+(4) If check is "stale" => Nagios performs an active check
+
+*******************************
+* Enabling Freshness Checking *
+*******************************
+(1) Enable freshness checking ... CHECK_SERVICE_FRESHNESS, CHECK_HOST_FRESHNESS
+(2) How Often ... SERVICE_FRESHNESS_CHECK_INTERVAL, HOST_FRESHNESS_CHECK_INT
+(3) Enable host/ service freshness check ... CHECK_FRESHNESS = 1
+(4) Thresholds ... FRESHNESS_THRESHOLD
+(5) Actively check ... CHECK_COMMAND
+(6) CHECK_PERIOD
+
+***********
+* Example *
+***********
+Example of a service with freshness checking ... Nightly backup jobs
+(External script that submits the results of backup job to Nagios Core once the backup is completed)
+Results are provided by an external application 
+Ensure backup jobs performed per day 
+
+Active checks are disabled because ... the results of the service are made available by an external application
+
+Freshness threshold is set to 26 hours ... backup jobs are late 
+
+define service {
+  host_name			backup-server
+  service_description		ArcServe Backup Job
+  active_checks_enabled		0
+  passive_checks_enabled 	1
+  check_freshness		1
+  freshness_threshold		93600
+  check_command			no-backup-report
+}
+
+define command {
+  command_name		no-backup-report
+  command_line		/usr/local/nagios/libexec/check_dummy 2 "CRITICAL:"
+}
+
+"check_dummy" Plugin
+check_dummy <integer state> [optional text]
+
+This plugin will simply return th state corresponding to the numeric value of <state> argument with optional text.  
+Will ret  
+ 

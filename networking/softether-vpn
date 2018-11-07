@@ -1,0 +1,9 @@
+SoftEther VPN -> Multi-Protocol VPN software
+--------------------------------------------
+(x) Alternative to OpenVPN
+(x) Realize BYOD (Bring Your Own Device) on business -> Smartphones, Tablets or Laptops 
+(x) Built in L2TP Client connect to SoftEther-VPN server -> Remote Access 
+(x) Strong resistance against firewalls -> Any deep-packet inspection firewalls cannot reach transport packets
+(x) SoftEther VPN uses Ethernet over HTTPS for camouflage
+(x) Can Setup a VPN-Server behind the Enterpise Firewall 
+(x)  

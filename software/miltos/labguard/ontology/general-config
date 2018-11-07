@@ -1,0 +1,16 @@
+admin_email=<email_address>
+admin_email=root@localhost.localdomain
+
+auto_reschedule_checks=<1|0>
+auto_reschedule_checks=1
+"Nagios will attempt to automatically reschedule active host and service checks to smooth them out over time (balance the load on the monitoring server).
+
+auto_rescheduling_interval=<seconds>
+auto_rescheduling_interval=30
+"How often Nagios will attempt to automatically reschedule checks"
+
+auto_rescheduling_window=<seconds>
+auto_rescheduling_window=180
+"Only host and services check that occur in next X seconds will be rescheduled
+
+

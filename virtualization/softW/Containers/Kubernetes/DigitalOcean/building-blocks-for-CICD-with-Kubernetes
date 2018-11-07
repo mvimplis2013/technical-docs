@@ -1,0 +1,367 @@
+Cloud native approach ... Building + Testing + Deploying applications
+
+Release Management + Service Meshes 
+
+(STEP 1) Build Container images (Docker, Buildah, Kaniko)
+---------------------------------------------------------
+Container Image ... Self-contained with {application code, runtime, dependencies}
+Use Image ... Create Containers
+
+>>>> Building Container Images ---> Dockerfiles
+A textfile with commands to assemble the container image
+
+$> docker image build
+
+Build context -> Create the environment & Run application inside image
+
+[1] Create a project folder for Dockerfile + Build-Context:
+$> mkdir demo
+$> cd demo
+[2] Create a Dockerfile:
+$> nano Dockerfile
+
+*** FROM ubuntu:16.04
+
+*** LABEL MAINTAINER john@piperis
+
+*** RUN apt-get update \
+***     && apt-get install -y nginx \
+***     && apt-get clean \
+***     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+***     && echo "daemon off;" >> /etc/nginx/nginx.conf
+
+*** EXPOSE 80
+*** CMD ["nginx"]
+
+Base Image will be ... Ubuntu 16.04
+CMD-instruction ... default command when container-starts
+
+[3] Build the container image ... 
+      Use current (.) folder as build context
+      name the image "nkhare/nginx:latest"
+
+$> sudo docker image build -t nkhare/nginx:latest .
+
+[4] Image is built - List all docker images:
+  $> docker image ls
+     nkhare/nginx   latest
+     ubuntu         16.04
+
+>>>>>>> Building Container Images with Project Atomic-Buildah
+A CLI tool from Project-Atomic ... Quickly build OCI 
+  "Open Container Initiative" - compliant images
+
+Create an image ... From a working container OR a Dockerfile
+Build image ... Without the Docker daemon
+Supports Image Operations ... Build, List, Push, and Tag
+
+[1] Install Buildah 
+1A .. Dependencies
+$> cd
+$> sudo apt-get install software-properties-common
+$> sudo add-apt-repository ppa:alexlarsson/flatpak
+$> sudo add-apt-repository ppa:gophers/archive
+$> sudo add-apt-repository ppa:projectatomic/ppa
+$> sudo apt-get update
+$> sudo apt-get install bats btrfs-tools git libapparmot-dev ....
+
+1B ... Install GO 
+$> sudo curl -O https://storage.googleapis.com/golang/go1.8.linux-amd64.tar.gz
+$> sudo tar -xvf go1.8.linux-amd64.tar.gz
+$> sudo mv go /usr/local 
+$> sudo echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.profile
+$> source ~/.profile
+$> go version
+
+1C ... Install "runc" and "buildah"
+$> mkdir ~/buildah
+$> cd ~/buildah
+$> export GOPATH=`pwd`
+$> git clone https://github.com/projectatomic/buildah ./src/github.com/projectatomic
+$> cd ./src/github.com/projectatomic/buildah
+$> make runc all TAGS="apparmor seccomp"
+$> sudo cp ~/buildah/src/github.com/opencontainers/runc/runc /usr/bin/.
+$> sudo apt-get install buildah
+
+1D .. Configure Container Registries 
+$> sudo nano /etc/containers/registries.conf
+     [registries.search]
+     registries = ['docker.io', 
+
+Which registries be consulted when completing image names (do not include domain)
+
+1E ... Build a demo image using repository: github.com/do-community/rsvapp
+$> sudo buildah build-using-dockerfile -t rsvpapp:buildah github.com/do-community...
+
+$> sudo buildah images 
+    
+1F ... Push the image to Docker Hub (store for future use)
+$> docker login -u <your-dockerhub-username> -p <your-dockerhub-password>
+
+I will get .... ~/.docker/config.json (Hub credentials)
+
+$> sudo buildah push --authfile ~/.docker/config.json rsvapp:buildah ... 
+      docker://<your-docker-username>/rsvpapp:buildah
+
+Push to local Docker daemon
+$> sudo buildah push rsvpapp:buildah docker-daemon:rsvpapp:buildah
+
+** STEP 2: Set up a  Kubernetes Cluster on DigitalOcean using kubeadm & Terraform **
+What is Miltos-Personal Access Token for DigitalOcean ?
+
+Use it for ... Terraform Connect to DigitalOcean ... Provision 3 servers 
+
+On My-Ubuntu Server ... Create Three(3) VMs for Kubernetes cluster
+Need a pair of SSH keys ... Connect to VMs (password-less)
+$> ssh-keygen -t rsa
+
+(Generating public/ private rsa key pair)
+(Enter file to save the key default is ~/.ssh/id_rsa)
+
+Caution: Without a PASSPHRASE to enable password-less logins
+
+What is my PUBLIC key: $> cat ~/.ssh/id_rsa.pub
+
+Upload SSH Public Keys to DigitalOcean Account ...
+Navigation Menu -> Account -> Security -> SSH keys -> Add SSH Key 
+Copy My-Public Key .pub -> into SSH-key-content field
+Name -> Name of machine copied public key from (Home machine)
+"Add SSH Key" Press <Enter>
+
+In case of ... Create a New Droplet 
+Automatically embed my-private key ... "Add your SSH keys" section/ Droplet Create page
+
+Install Terraform
+-----------------
+$> sudo apt-get update 
+$> sudo apt-get install unzip
+$> wget https://releases.hashicorp.com/terraform/0.11.7/terraform_0.11.7_linux_amd64.zip
+$> unzip terraform_0.11.7_linux_amd64.zip
+$> mv mv terraform /usr/bin/.
+$> terraform version
+[Output] Terraform v0.11.7
+
+Install kubectl
+---------------
+$> sudo apt-get install apt-transport-https
+$> curl -s https://packages.cloud/google.com/apt/doc/apt-key.gpg | sudo apt-key add
+$> sudo touch /etc/apt/sources.list.d/kubernetes.list
+$> echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d     /kubernetes.list
+$> sudo apt-get update
+$> sudo apt-get install kubectl
+$> mkdir -p ~/.kube
+
+Why do I need the "~/.kube" folder ? 
+"kubectl" looks for configuration files to access the cluster
+
+Sample Project with Terraform scripts 
+-------------------------------------
+$> git clone https://github.com/do-community/k8s-cicd-webinars.git
+$> cd k8s-cicd-webinars/webinar1/2-kubenetes/1-Terraform/
+
+Get a fingerprint of your SSH public key
+$> ssh-keyegn -E md5 -lf ~/.ssh/id_rsa.pub | awk '{print $2}'
+$> export FINGERPRINT=....
+
+Export your DO (DigitalOcean) personal access token:
+$> export TOKEN="your-DO-access-token"
+
++++++++++++++++
+Script+Config.file for deploying your Kubernetes cluster:
+#!/bin/bash
+terraform init
+terraform plan -var "pub-key=~/.ssh/id_rsa.pub" -var "pvt_key=~/.ssh/id_rsa" -var "region=ams3" -var "ssh_fingerprint=$FINGERPRINT" -var "do_token=$TOKEN" -var "size=2gb"
+terraform apply -input=false -auto-approve -var "pub_key=~/.ssh/id_rsa.pub" -var "pvt_key=~/.ssh/id_ rsa" -var "region=ams3" -var "ssh_fingerprint=$FINGERPRINT" -var "do_token=$TOKEN" -var "size=2gb"
+
+exit 0
++++++++++++++++
+
+$> ./script.sh
+$> kubectl get nodes
+
+
+*** STEP 3: Building Container Images with Kaniko ***
+Use a NATIVE Kubernetes tool ... Build a container image INSIDE a Kubernetes cluster 
+
+Push my images to Docker-Hub -> Create a Kubernetes ConfigMap (store credentials inside Kubernetes)
+$>sudo kubectl create configmap docker-config --from-file=$HOME/.docker/config.json
+
+Create a ... POD-Definition file 
+$> cd ~/k8s-cicd-webinars/webinar1/2-kubernetes/1-Terraform/
+$> nano pod-kaniko.yml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kaniko
+spec:
+  containers:
+    - name: kaniko
+      image: gcr.io/kaniko-project/executor:latest
+      args: ["--dockerfile=./Dockerfile",
+              "--context=/tmp/rsvapp/",
+              "--destination=docker.io/your-dockerhub-username/rsvpapp:kaniko",
+              "--forse" ]
+      volumeMounts:
+        - name: docker-config
+          mountPath = /root/.docker/
+        - name: demo
+          mountPath: /tmp/rsvpapp
+      restartPolicy: Never
+      initContainers:
+        - image: python
+          name: demo
+          command: ["/bin/sh"]
+          args: ["-c", "git clone https://github.com/do-community/rsvpapp.git /tmp/rsvpapp"]
+          volumeMounts:
+            -name: demo
+             mountPath: /tmp/rsvpapp
+      restartPolicy: Never
+      volumes: 
+        - name: docker-config
+          configMap: 
+            name: docker-config
+        - name: demo
+          emptyDir: {}
+
+What will happem when My-POD is deployed ?
+  ++++ Init-Containers: Run BEFORE Application-Containers ... for utilies ++++
+  My Init-Container ... clone the GitRepository with Dockerfile:
+      FROM teamcloudyyuga/python:alpine
+      COPY . /usr/src/app
+      WORKDIR /usr/src/app
+      ENV LINK http://www.meetup.com/cloudyuga/
+      ENV TEXT1 CloudYuga
+      ENV TEXT2 Garage RSVP!
+      ENV LOGO https://raw.githubusercontent.com/cloudyuga/rsvpapp/master/static/cloud.png
+      ENV COMPANY CloudYuga Technology Pvt. Ltd.
+      RUN pip3 install -r requirements.txt
+      CMD python rsvp.py
+  Wher is deployed ?
+      Into a SHARED volume "demo"
+
+  My Aoolication-Container ... "kaniko" 
+  1) Build the image using the ./Dockerfile
+  2) PUSH the resulting image into -> Docker-hub
+
+Deploy the "kaniko" pod:
+  $> kubectl apply -f pod-kaniko.yml
+  $> kubectl get pods 
+       STATUS = Init/ Running/ Completed
+  $> kubectl logs kaniko
+
+After your container is deployed & Pushed into Docker-Hub ... Pull the image from Hub:
+  $> dicker pull your-dockerhub-username/rsvpapp:kaniko
+
+UNTIL NOW --> 1) Created New Kubernetes Cluster and 2) Created New Images from Within the Cluster
+
+STEP 4 ... Create Kubernetes Deployments and Services for My-Application
+------------------------------------------------------------------------
+Need Deployment ... Run My Application
+
+Need an NGINX deployment file ...
+$> nano deployment.yml
+
+  apiVersion: apps/v1
+  kind: Deployment
+  metadata: 
+    name: nginx-deployment
+    labels:
+      app: nginx
+  spec:
+    replicas: 3
+    selector:
+      matchLabels:
+        app: nginx
+    template:
+      metadata:
+        labels:
+          app: nginx
+      spec:
+        containers:
+        - name: nginx
+          image: nginx:1.7.9
+          ports:
+          - containerPort: 80
+
+How to Deploy:
+$> kubectl apply -f ./deployment.yml
+$> kubectl get deployments
+     DESIRED vs CURRENT 
+$> kubectl get pods
+
+Why do I need a Service ? TO EXPOSE MY APPLICATION EXTERNALLY & INTERNALLY
+$> nano service.yml
+  kind: Service
+  apiVersion: v1
+  metadata:
+    name: nginx-service
+  spec:
+    selector: 
+      app: nginx
+    type: NodePort
+    ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 3011
+
+Define a new Service "nginx-service", 
+  it will target port 90 on My-Pod,
+    nodePort defines the port will accept EXTERNAL traffic
+
+Deploy the Service:
+$> kubectl apply -f service.yml
+$> kubectl get service
+
+**** Step #5: Creating Custom Resources in Kubernetes ****
+Kubernetes DEFAULT ... Limited features
+EXTEND Kubernetes features ... Make a Custom Resource
+
+What is a RESOURCE ... An ENDPOINT in Kubernetes API ... Stores a collection of API objects
+  Example POD-Resource ... A collection of POD-Objects
+    
+What us Sub-Controllers ... Make sure current state of my objects === DESIRED
+  Example ReplicaSet ... Desired POD-count remains consistent
+
+Fully DECLARATIVE API ... Make {CustomResource, SubController}
+
+$> nano crd.yml
+  apiVersion: apiextensions.k8s.io/v1beta1
+  kind: CustomResourceDefinition
+  metadata:
+    name: webinars:digitalocean.com
+  spec:
+    group: digitalocean.com
+    version: Namespaced
+    names:
+      plural: webinars
+      singular: webinar
+      kind: Webinar
+      ahortNames:
+      - wb
+
+Deploy the CRD defined in file crd.yml:
+  $> kubectl create -f crd.yml
+
+New CustomResource ... New RESTful path : /apis/digitalocean.com/v1/namespaces/*/webinars
+Ways to refer to custom objects ... webinars, webinar, Webinar, and wb
+
+How to Test my RESTful resource: 
+$> kubectl proxy & curl 127.0.0.1:8001/apis/digitalocean.com
+
+(Allow traffic to port 8001: $> sudo ufw allow 8001)
+
+Create Object for using the new Custom Resources ...
+$> nano webinar.yml
+  apiVersion: "degitalocean.com/v1"
+  kind: Webinar 
+  metadata: 
+  - name: webinar1
+  spec:
+  - name: webinar
+    image: nginx
+
+$> kubectl apply -f webinar.yml
+$> kubectl get webinar
+ 

@@ -1,0 +1,55 @@
+Prometheus ... No built-in authentication !
+How to ensure unauthorized users can't access metrics
+
+Use NGINX to add basic HTTP authentication (Prometheus + Grafana fully support)
+
+$> sudo apt-get update
+$> sudo apt-get install nginx-core
+
+In case of installation failure ... Something is already running on port 80
+$> sudo netstat -lnp | grep 0.0.0.0:80
+   => 1870/lighttpd tcp 0 0 0.0.0.0:80
+$> sudo systemctl stop lighttpd
+
+Port 80 is free and installation successful
+
+Install "apache2-utils" to obtain access to "htpasswd" utility for generating password files.
+Username = sammy 
+Password = sammy
+
+$> sudo htpasswd -c /etc/nginx/.htpasswd sammy
+Enter Password + Confirm
+=> A newly-created file called .htpasswd, located in /etc/nfinx directory
+=> containing the username and a hashed version of the password.
+
+Configure NGINX TO USE THE PASSWORDS
+------------------------------------
+(1) Make a copy of default nginx configuration file to rollback: 
+$> sudo cp /etc/nginx/sites-available/default /etc/nginx/sites-available/prometheus
+(2) Open new configuration file:
+$> sudo nano /etc/nginx/sites-available/prometheus
+
+   ... Forward all localhost traffic to Prometheus
+   ... Ensure user authentication at the start of each new session
+   location / {
+     auth_basic "Prometheus server authentication";
+     auth_basic_user_file /etc/nginx/.htpasswd;
+     proxy_pass http://localhost:9090;
+     proxy_http_version 1.1;
+     proxy_set_header Upgrade $http_upgrade;
+     proxy_set_header Connection 'upgrade';
+     proxy_set_header Host $host;
+     proxy_cache_bypass $http_upgrade;
+  } 
+
+(3) Deactivate default Nginx configuration file and activate the new file:
+$> sudo rm /etc/nginx/sites-enabled/default 
+$> sudo ln -s /etc/nginx/sites-available/prometheus /etc/nginx/sites-enabled/
+
+(4) Test whether is OK: 
+$> sudo nginx -t
+
+(5) Reload Nginx & Verify is Up/ Running
+$> sudo systemctl reload nginx
+$> sudo systemctl status nginx
+$> sudo    

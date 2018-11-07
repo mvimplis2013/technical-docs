@@ -1,0 +1,54 @@
+In case of tests available: 
+badrod
+  badrod
+  etc
+  test
+
+Requirements dedicated to tests:
+  test
+    requirements.txt 
+    setup_test.sh
+
+Run script file and prepare development environment for tests 
+#!/usr/bin/env bash
+
+set -e 
+
+THIS_PATH=$(dirname "$0")
+BASE_PATH=$(dirname "$THIS_PATH")
+
+cd $BASE_PATH
+
+# Install test requirements using a file
+pip install -r test/requirements.txt 
+python setup.py develop
+
+# Requirements file format
+
+# These are the requirements dedicated to tests
+-r ../requirements.txt
+unittest2
+mock
+coveralls==0.5
+nose-cov==1.6
+coverage==3.7.1
+nose==1.3.4.
+pylint==1.4.1
+pep8==1.5.7
+
+-r more_requirements.txt
+
+###### Requirements without Version Specifiers ########
+nose
+nose-cov
+beaitifulsoup4
+#
+###### Requirements with Version Specifiers ######
+docopt == 0.6.1
+coverage != 3.5
+keyring >= 4.1.1
+Mopidy-Dirble ~= 1.1
+#
+###### A particular file #######
+./downloads/numpy-1.9.2-cp34-none-win32.whl
+http://wxpython.org/Phoenix/snapshot-builds/wxPython_Phoenix-3.0.3.dev1820.whl 

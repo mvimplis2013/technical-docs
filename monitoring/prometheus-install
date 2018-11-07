@@ -1,0 +1,12 @@
+Using Docker: 
+------------
+$> docker run -p 9090:9090 -v /tmp/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
+
+Starting Prometheus from binary:
+-------------------------------
+$> /home/miltos/go/bin/prometheus --config.file=prometheus.yml
+
+Prometheus should start up. You should be able to browse to a status page at: 
+=> http://localhost:9090
+=> http://localhost:9090/metrics
+

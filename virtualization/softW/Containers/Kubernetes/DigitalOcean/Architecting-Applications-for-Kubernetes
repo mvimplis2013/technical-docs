@@ -1,0 +1,256 @@
+Microservices ... Developers create SMALL, composable application 
+How Small apps communicate ... through REST APIs over network
+
+Cloud-Native applications ... Microservices + Easy Environment Adaptation
+ 
+Health Reporting Metrics 
+Robust Telemetry ... alert operators to problems
+Applications are designed for ... Regular Restarts
+
+Twelve(12)-Factor App philosophy
+1) Codebase ... always Git
+2) Dependencies ... managed entirely by codebase / version pinned
+3) Config ... separate configuration parameters / never baking with app
+4) Services ... Local & Remote abstracted as networking-resources
+     Use external configuration for details
+5) Build, release and run ... completely separated 
+     Build stage ... make build ... deployment Artifact from source
+     Release ... Combines the Artifact with configuration
+     Run ... executes the Release
+6) Processes ... applications as processes that not rely on storing state
+     State offloaded to a backing service
+7) Port Binding ... Should natively bind to a port & listen for connections
+     Routing & Forwarding should handled externally 
+8) Concurrency ... Scaling across multiple servers
+9) Disposability ... Processes should {start quickly, stop gracefully} 
+10) Dev/prod parity ... all environments should match closely
+11) Logs ... Stream output to standard output/ External services handling
+12) Admin processes .. One-off against specific releases
+
+Focus on your application 
+
+-------------------------------------
+Containerizing Application Components
+-------------------------------------
+Kubernetes ... 
+  encapsulate my-application in one+ container images
+  execute using a container runtime (like Docker)
+
+Containers ...
+  Encapsulation between Application-Environment VS External-Host
+  Service-oriented approach to inter-process communication
+  External configuration through environmental
+  Expose logs to standard error & out
+
+-----------------------------------
+Guidelines on Optimizing Containers
+-----------------------------------
+Images Optimization ... Small-sized && Composable
+
+Building ... Requires extra tooling + Additional time
+
+Use Docker multi-stage builds ...
+  Image-A ... base for build process
+  Image-B ... base for runtime
+
+Build software ... all tools installed 
+Minimal ... slim streamlined
+Production .. build on top of minimal
+
+What parent layer ?
+A Distro-style parent ... (bloat found) 
+  1) Ubuntu:16.04 (rather complete)
+  2) Alpine Linux (very popular solid and minimal)
+
+A non-distro base image ... SCRATCH (Docker most minimal parent image)
+
+Interpreted languages ... Python & Ruby --> 
+  NO compilation stage
+  The interpreter must be available to run the code in production
+
+  "language-specific" optimized images 
+    on top of Alpine-Linux
+  Goto Docker-Hub
+
+-----------------------------------------
+Deciding on Scope for Containers and PODS
+-----------------------------------------
+What are PODs ... The smallest of abstraction that Kubernetes can manage
+ A Kubernetes object composed of 
+   One or More Closely Coupled Containers
+
+Managed as a Single Unit ... Containers are scheduled on same node
+  Share resources .. filesystem & IP space
+  Start/ Stop together
+
+Natural development boundaries ... Microservices
+  Containers for 
+    Discrete units of functionality 
+    Used in a variety of contexts
+
+PODs are constructed by 
+  Benefited from Independent Management
+
+Kubernetes tools & APIs
+  Directly interact with PODs (most primitive)
+
+SOS ... Kubernetes will not allow to ...
+  Manage the containers within a POD independently
+  Never group together containers that benefit from separate admin
+
+WEB-Servers & Application-Servers ... Different PODs
+
+WEB-Server & Database adaptor ... Same POD if adaptor important for OK operat
+
+-------------------------------------------------------------
+Enhancing Pod Functionality by Bundling Supporting Containers
+-------------------------------------------------------------
+PRIMARY container -> CORE functionality of pod
+SUPPORTING containers -> modify or extent primary
+
+a WEB-Server POD ...
+  an NGINX container -> Listens requets and serve content 
+  an Repository puller -> Updates static files | external repo changed
+Do not package them = A single container 
+Because = Can be used independently
+
+Design Patterns for Container-Based Distributed Systems:
+Packaging containers together into a POD
+1) SIDECAR ... secondary container extends and enhances primary
+     Utility functions:  Forward logs & Watch for updated config values  
+2) AMBASSADOR ... Abstract remote resources 
+     Primary container (conects to t0) --> Ambassador (connects to t1) -->  
+        Pools of complex external resources (Redis cluster)
+   I am primary container and DO NOT WANT TO KNOW actual deployment env
+3) ADAPTOR ... Translate primary container's data 
+     Align with standards expected by outside patterns
+     Uniform access to centralized/ backend services even when applications 
+       do not incompatible interfaces
+
+----------------------------------------------------
+Extracting Configuration into ConfigMaps and Secrets
+----------------------------------------------------
+Possible but NOT Good Practice ... 
+  Application configuration can be baked into container images
+
+BEST is to make your-application configurable @ RUNTIME 
+  Two(2) options ... ConfigMaps & Secrets
+
+CONFIGMAPS ... Store data that can be exposed to pods
+  Presented as ... Environmental variables OR Mounted as files in POD
+
+Inject the configuration during runtime ...
+  Without having to rebuild the container image
+
+Secrets ... like ConfigMaps for sensitive data
+  Pass sensitive mataerial to applications without storing as plain text
+
+My-Application .. uses the configuration key ... not the actual value
+
+------------------------------------------
+Implementing Readiness and Liveness Probes
+------------------------------------------
+Tools for my-application ... Is Healthy & Avaliable ?
+
+Dedfine when your-application is alive & helthy ..
+  Define liveness & readiness probes
+
+Liveness probes ... Whether my-application running inside a container is alive
+How to check ... 
+  1) Run periodically commands within the container
+  2) Send periodically HTTP or TCP network requests
+
+Is process ... Up & Running 
+  Respond as expected
+Otherwise 
+  Kubernetes restarts the container 
+
+Readiness ... Is applciation withing container ready to serve ?
+  Finished initialization procedures
+  Finished reconfiguration after update
+In case of readiness failure ,,, 
+  Kubernetes STOPS sending requests to POD temporarily 
+
+--------------------------------------------------
+Using Deployments to Manage Scale and Availability
+--------------------------------------------------
+Deployment is ... A compound object 
+  Add lifecycle management to REPLICASETS: 
+    rolling updates
+    rollback to previous 
+    transitions between states 
+
+Define POD templates ... manage multiple copies of a single POD 
+
+--------------------------------------------------------------------------
+Creating Services and Ingress Rules to Manage Access to Application Layers
+--------------------------------------------------------------------------
+Deployments ... Good for provisioning sets of interchangeable pods
+Routing traffic to PODs ... How to ?
+
+Problems ... PODS are swapped-out {Rolling Updates, Retsarted, Failures}
+  Network addresses associated with running group will change 
+
+Solution ... Maintain routing information for dynamic pools of pods
+
+Control access to various layers of infrastructure
+
+Service are ... How traffic is routed to sets of pods
+
+Traffic forwarding ... 
+  1) From external clients to internal applications
+  2) Between internal services even in case of environment shifts 
+
+Group of Pods ... which consumers are allowed
+
+-----------------------------
+Accessing Services Internally
+-----------------------------
+Case 1: My-Service is accessible only from other applications deployed
+  clusterIP ... connect to a set of PODs using a stable IP address
+  I am application-A and want to contact group of replicated PODs
+    Call service's IP address
+
+Optional DNS addon to Kubernetes
+  Provide DNS names to services
+  I am pod-X and need to communicate service-Y ... use my name not an IP
+
+----------------------------------------
+Exposing Services for Public Consumption
+----------------------------------------
+Case 2: An interface publicly accessible
+  Use the "Load-Balancer" service type
+
+Use ... Specific Cloud Provider API (AWS/ Azure/ Google) 
+  My-Cloud Provider is provisioning a load-balancer 
+  Call the service public IP
+
+Load Balancer for Every Service .. Careful Expensiev 
+
+Use 2 ... Kubernetes INGRESS objects
+  Predefined set of rules
+  How to route different types of requests to different services
+
+Ingress rules ... are interpreted from INGRESS CONTROLLER
+  some sort of load-balancer, like Nginx
+  deployed with the cluster as a POD
+
+-------------------------------------------------
+Use Declarative Syntax to Manage Kubernetes State
+-------------------------------------------------
+Kubernetes objects Administration ...
+  KUBECTL ... define ad-hoc objects to immediately deploy
+    easy & quick deployment
+
+Major Drawbacks ... No records of changes deplowed to my-cluster
+  How to recover in case of failures ?
+  Track operational changes applied
+
+Kubernetes offers DECLARATIVE syntax ... 
+  fully define resources within text-files
+  Store configuration files in a version control repository
+  Run KUBECTL with configuration files 
+          
+
+   
+  

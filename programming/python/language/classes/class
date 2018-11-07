@@ -1,0 +1,45 @@
+!!! Class Definition !!!
+Simplest form is:
+  class <ClassName>:
+    <statement-1>
+    ...
+    <statement-N>
+Example:
+  class MyClass:
+    """ A simple example class """
+    i = 12345
+
+    def f(self):
+      return 'Hello World'
+
+!!! Class Objects !!!
+Class objcts suport ... (1) Attribute references , (2) Class instantiation
+
+Class Instantiation: 
+  x = MyClass() 
+
+Many classes like to create objects with instances customized to a specific 
+initial state => Must have a special method named __init__():
+
+class Complex:
+  def __init__(self, realpart, imagpart):
+    self.r = realpart
+    self.i = imagpart
+
+x = Complex(3.0, -4.5)
+x.r, x.i
+
+!!! Instance Objects !!!
+Attribute references & Method Call
+
+x.counter = 1
+x.f()
+
+!!! INHERITANCE !!!
+Syntax:
+
+class DerivedClassName(BaseClassName):
+  <statement-1>
+  ...
+  <statement-N>
+
