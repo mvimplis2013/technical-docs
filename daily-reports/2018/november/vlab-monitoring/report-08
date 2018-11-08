@@ -1,0 +1,50 @@
+Progress Report , 
+
+Day: 08-11-2108
+
+Software: VLAB-Monitoring
+Module: External-Scanner
+
+*** What It Is ***
+From: My Laptop/ Remote location & away from VLAB {AthensPerikleous, Xalandri && Austria}
+Application Type: Native Python Application
+
+I am ready to run and do my monitoring staff:
+
+Step #01: Collect Configuration Data from Exernal Sources (.json, .env)
+Step #02: Validate the list of Names/ IPs for { requested VLABs } 
+Step #03: For every requested VLAB_i,
+Step #04: Is "VLAB_i::Gateway" ... Pingable ?
+   ex. pyPing vlab1.dyndns.org
+Step #05a: VLAB_i::Gateway 
+Step #05b: 
+
+*** Use Cases ***
+
+Host PC: Intracom Linux,
+
+  Distributor ID:	Ubuntu
+  Description:	Ubuntu 16.04.5 LTS
+  Release:	16.04
+  Codename:	xenial
+
+Console command: 
+  $> ping -c 1 vlab1.dyndns.org
+
+  PING vlab1.dyndns.org (2.86.131.161) 56(84) bytes of data.
+  From 10.124.83.3 icmp_seq=1 Packet filtered
+
+  --- vlab1.dyndns.org ping statistics ---
+  1 packets transmitted, 0 received, +1 errors, 100% packet loss, time 0ms
+
+I_M_P_O_R_T_A_N_T Notes:
+Cause: ! Pinging Behind an ENTREPRISE Firewall !
+Result: 
+  1) Translatation( DNS-Name to IP-address ) ... Successful
+     Ping response ... Found that "vlab1" is "2.86.131.161"
+  2) ICMP packet ... Lost 
+     From 10.124.83.3 icmp_seq=1 Packet filtered
+     1 packtes transmitted, O received, +1 errors, 100% packet loss    
+
+How should I interpret this response ???
+  { VLAB1::Gateway is Up & Running }   
