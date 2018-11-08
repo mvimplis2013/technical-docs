@@ -1,0 +1,50 @@
+**********************************************************************
+**             LOCAL & REMOTE TASK MANAGERS/ SCHEDULERS             **
+**********************************************************************
+
+(1) Local --> RQ !!!
+(https://github.com/rq/rq)
+*Stars: 5105
+Last Commit: 12 days ago
+
+WHAT 
+----
+RQ (Redis Queue) ... a simple Python library for queuing jobs and 
+  processing them in the background with workers.
+
+INSTALLATION
+------------
+$> pip install rq
+
+First run a Redis-server to backup messages ...
+$> redis-server
+
+(2) Distributed --> CELERY !!!
+(https://github.com/celery/celery)
+*Stars: 10.895
+Last Commit: 3 days ago
+
+INSTALLATION
+------------
+$> pip install -U Celery
+
+Install bundles for librabbitmq:
+$> pip install "celery[librabbitmq]"
+$> pip install "celery[librabbitmq,redis,auth,msgpack]"
+
+WHAT 
+----
+Task queues ... a mechanism to distribute work across threads and machines
+
+Unit of work ... a task enters --> the Queue
+
+Workers ... constantly monitor the queue for new work to perform
+
+Celery communicates via messages ... 
+  Use a broker to mediate between clients and workers
+  initiate task -> client puts a message on RabbitMQ -> 
+    broker delivers message to worker
+
+ 
+
+
