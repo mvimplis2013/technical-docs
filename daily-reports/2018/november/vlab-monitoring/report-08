@@ -16,8 +16,67 @@ Step #02: Validate the list of Names/ IPs for { requested VLABs }
 Step #03: For every requested VLAB_i,
 Step #04: Is "VLAB_i::Gateway" ... Pingable ?
    ex. pyPing vlab1.dyndns.org
-Step #05a: VLAB_i::Gateway 
-Step #05b: 
+
+CROSSROAD --> VLAB_i::Gateway Observability
+------------------------------------------- 
+Step #05a  : VLAB_i::Gateway ... is OK Pingable !
+Step #05a_1: VLAB_i::Gateway ... apply GeoIP
+  GeoIP referes to locating a computer geographic location by identifying that terminal's IP address
+  GeoIP is not as accurate as other methods of geolocation as GPS
+  
+  What is the Geolocation of VLAB_i ?
+Step #05a_2: geo_VLAB_i ... is Successfully returned 
+
+CROSSROAD --> geo_VLAB_i::Physical Location (ex. VLAB1 @ Xalandri)
+-------------------------------------------
+Step #05a_3: geo_VLAB_1 ?= "XALANDRI" 
+Step #05a_4: In case of NO "geo_VLAB_1 NotEq "XALANDRI" ... ABORT
+Step #05a_5: In case of OK "geo_VLAB_1 EQUAL "XALANDRI" ... 
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  ! SUCCESS: VLAB_i is FULLY Acceptable {Observable & Locationaly Correct} !
+  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Step #05b  : VLAB_i::Gateway ... is NOT Pingable !!
+Step #05b_1: Problem with VLAB_i { Probably DOWN }
+Step #05b_2: Start sending Alerts to administrators
+
+Proceed with SSH-Service ReadY-ability
+-------------------------------------- 
+Step #06: Scan VLAB_i ... is PORT=22 Open ?
+  Necessary Tool: nmap (https://nmap.org)
+  Appropriate Command: nmap -PS22 
+  Python Implementation: python-nmap (https://pypi.org/project/python-nmap/)
+     Last Released: July 29, 2016 !
+  Command Execution: (check report-08-app-nmap)
+
+SSH-Service Up & Running
+------------------------ 
+Step #07: VLAB_i::SSH-PORT{=22} ... is Open & Listening
+
+Step #08: VLAB_i is Ready for SSH Connections
+Step #09: At Robert's Laptop
+ 1) Creat a SSH-client ... clientA 
+ 2) Get Host Keys ... keysB
+ 3) Add keys to client ... clientA + keysB 
+ 4) SSH-client.connect()
+
+CROSSROAD --> SSH-Connection Success/ Failure 
+Step #10: Connection Failure ... Exception Raised :
+  {BadHostKey, AuthenticationError, SSHException, SocketError}  
+  !!! A_B_O_R_T {SSH Connection Failure} !!!!
+
+Step #11: SSH-Connection Success !  
+Step #12: Execute a DEMO remote command @ VLAB
+  ex. SSH-client.exec_command("ls")
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! VLAB-Monitoring Tool / External Safety - Approachability Check  !!!
+!!! Completed Successfuly All Tests ... SSH Connection Available    !!!
+!!! Ready to Proceed with INTERNAL tests:                           !!!
+!!! {servers, VMs, Containers, Applications, Support Services }     !!!
+!!! If Peer is Down ... Need Recovery Plan with Proper Sequencing   !!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 *** Use Cases ***
 
@@ -46,5 +105,10 @@ Result:
      From 10.124.83.3 icmp_seq=1 Packet filtered
      1 packtes transmitted, O received, +1 errors, 100% packet loss    
 
-How should I interpret this response ???
+????   Question 1   ????
+How should I interpret this response ?
   { VLAB1::Gateway is Up & Running }   
+
+????   Question 2   ????
+Filtering Out the ICMP .... is possible also in Robert's laptop ?
+

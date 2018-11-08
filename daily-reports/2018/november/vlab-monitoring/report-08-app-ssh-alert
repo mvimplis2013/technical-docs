@@ -1,0 +1,102 @@
+*************************************************************
+*                       SSH Secure Connection
+*************************************************************
+* SSH-API *
+***********
+PARAMIKO 
+
+(https://github.com/paramiko/paramiko)
+
+4.976 *Stars
+Latest Commit: 21 days ago
+
+WHAT 
+----
+A Python 2.7/3.4+ module ... secure (encrypted & authenticated) connections 
+to remote machines. Unlike SSL, SSH2 protocol does not require hierarchical 
+certificates signed by a powerful central authority.
+
+INSTALLATION
+------------
+$> pip install paramiko 
+
+**************************************
+* Remote Execution of Shell Commands *
+**************************************
+FABRIC
+(https://github.com/fabric/fabric)
+*Stars: 10.718
+Last Commit: 21 days ago
+
+WHAT
+----
+A high level Python library ... execute shell commands remotely over SSH.
+
+Build on top of .... Invoke & Paramiko 
+
+  INVOKE => https://github.com/pyinvoke/invoke
+  *Star: 2126
+  Last Commit: 20 days ago
+
+  A Python library for managing shell-oriented subprocesses and organizing 
+  executable Python code into CLI-invokable tasks
+
+INSTALLING
+----------
+$> pip install fabric
+
+********************************************************
+*             Alerts & Notifications                   *
+********************************************************
+* (1) API to easy send Notifications
+
+NOTIFIERS
+
+(https://github.com/notifiers/notifiers)
+
+971 *Stars
+Latest Commit: 9 days ago 
+
+WHAT 
+----
+A one stop shop for all notifications providers with a unified and 
+simple interface. 
+My-application will call this library to enable VLAB-Monitoring users to 
+receive alarms based on critical conditions.
+
+SUPPORTED PROVIDERS
+-------------------
+Pushover, SimplePush, Slack, Gmail, Email(SMTP), Telegram, Gitter, 
+Pushbullet, Join, Hipchat, Zulip, Twillio, Pagerduty, Mailgun, 
+PopcornNotify, StatusPage.io 
+
+INSTALLATION
+------------
+Via pip:
+  $> pip install notifiers
+
+Via Dockerhub:
+  $> docker pull liight/notifiers
+
+********************************************************
+*             Alerts & Notifications                   *
+********************************************************
+* (2) NTFY
+
+A UTILITY for sending notifications, on demand & when commands finish
+
+(https://github.com/dschep/ntfy)
+
+Stars* 3289
+Latest Commit: 12 days ago
+
+INSTALL
+-------
+sudo pip install ntfy
+
+WHAT
+----
+1) Automatically provide desktop notifications when long running commands finish
+2) Push notifications to mobile phones
+
+

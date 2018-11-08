@@ -1,0 +1,17 @@
+Application: VLAB-Monitoring 
+Module: External-Scanner
+Operation: VLAB_i::Gateway is {Observable, Trackable, Connectable}
+
+Explanations: 
+  Observable -> Ping-able from DynDns.org-Name to IP-address
+  Trackable  -> IPGeolocation from IP-address to Country/ City/ Street
+  Connectable -> Establish SSH-Connection & Execute a Demo "ls" command
+
+Type: Python Native Application 
+
+Should I DAEMONIZE It ? 
+
+https://github.com/thesharp/daemonize
+
+*Stars: 332
+Last Commit: March, 23

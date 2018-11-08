@@ -1,0 +1,75 @@
+Enviroment: Intracom Linux, Ubuntu Xenial, 16.04
+
+!! Shell Command !! 
+  $> nmap -PS22 vlab1.dyndns.org
+
+!! Command Output !!
+  
+  Starting Nmap 7.01 ( https://nmap.org ) at 2018-11-08 19:58 EET
+Nmap scan report for vlab1.dyndns.org (2.86.131.161)
+Host is up (0.0013s latency).
+rDNS record for 2.86.131.161: ppp-2-86-131-161.home.otenet.gr
+Not shown: 944 closed ports
+PORT     STATE    SERVICE
+21/tcp   filtered ftp
+22/tcp   open     ssh                       !!!! **** !!!!
+23/tcp   filtered telnet
+25/tcp   open     smtp
+43/tcp   open     whois
+80/tcp   filtered http
+81/tcp   open     hosts2-ns
+82/tcp   open     xfer
+83/tcp   open     mit-ml-dev
+100/tcp  open     newacct
+135/tcp  filtered msrpc
+139/tcp  filtered netbios-ssn
+443/tcp  open     https
+445/tcp  filtered microsoft-ds
+902/tcp  open     iss-realsecure
+990/tcp  open     ftps
+1433/tcp open     ms-sql-s
+1521/tcp open     oracle
+1935/tcp open     rtmp
+2001/tcp open     dc
+2196/tcp open     unknown
+2301/tcp open     compaqdiag
+2401/tcp open     cvspserver
+3000/tcp open     ppp
+3128/tcp open     squid-http
+3333/tcp open     dec-notes
+3389/tcp open     ms-wbt-server
+3390/tcp open     dsc
+3690/tcp open     svn
+5432/tcp open     postgresql
+5666/tcp open     nrpe
+5900/tcp open     vnc
+5901/tcp open     vnc-1
+5902/tcp open     vnc-2
+5903/tcp open     vnc-3
+5904/tcp open     unknown
+5906/tcp open     unknown
+5907/tcp open     unknown
+5910/tcp open     cm
+6100/tcp open     synchronet-db
+6502/tcp open     netop-rc
+6969/tcp open     acmsoda
+7000/tcp open     afs3-fileserver
+7001/tcp open     afs3-callback
+7002/tcp open     afs3-prserver
+8000/tcp open     http-alt
+8080/tcp open     http-proxy
+8083/tcp open     us-srv
+8086/tcp open     d-s-n
+8181/tcp open     unknown
+8200/tcp open     trivnet1
+8443/tcp open     https-alt
+9000/tcp open     cslistener
+9003/tcp open     unknown
+9090/tcp open     zeus-admin
+9418/tcp open     git
+
+Nmap done: 1 IP address (1 host up) scanned in 6.59 seconds
+
+!! Olympus has NOT fallen !!
+SSH Server is Started and Waiting for Secure Connections:
+  22/tcp   open     ssh                       !!!! **** !!!!
