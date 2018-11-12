@@ -60,5 +60,10 @@ Add IPv6 Rules: /etc/iptables/rules.v6
 Congrats !!!! 
 Have a Firewall Running on Host .... BUT NO RULES 
 
-Modify Files ... rules.v4 & rules.v6   
+Modify Files ... rules.v4 & rules.v6  
+
+Congrats 2 @@@@
+Add some rules ... Comments starting with "#"
+
+Rule #1:  
 

@@ -9,3 +9,13 @@ Comparing network traffic ... against a set of rules
 Criteria used ... packet protocol type, source or destination address or port
 
 Target ... when dfined pattern matches, action taken
+
+Rules are organized into ... Chains
+A packet is checked sequentially
+
+Three(3) Default Chains 
+INPUT : handles packets TO server
+
+OUTPUT : handles packets FROM server
+
+FORWARD : handles packets destined for other servers 
