@@ -1,0 +1,139 @@
+Basic syntax ... 
+  $> docker [option] [command] [arguments]
+
+View all available docker subcommands:
+  $> docker <ENTER>
+
+List of important subcommands:
+{
+    attach: Attach a local standard stream to a running container, 
+    build: Build an image from a Dockerfile, 
+    cp: Copy files/folders between a container and local filesystem, 
+    create: Create a new container, 
+    exec: Run a command in a running container, 
+    export: Export a container's filesystem as a tar archive,
+    history: Show the history of an image,
+    images: list images,
+    info: Display system-wide information,
+    inspect: Return low-level information on Docker objects, 
+    kill: Kill one or more running containers, 
+    login: Log in to a Docker registry,
+    logout: Log out from a Docker registry,
+    logs: Fetch the logs of a container, 
+    pause: Pause all processes within one or more containers, 
+    port: List port mappings, 
+    ps: List containers, 
+    pull: Pull an image from a registry,
+    push: Push an image to a registry,
+    rename: Rename a container,
+    restart: Restart a container,
+    rm: Remove a container,
+    rmi: Remove an image, 
+    run: Run a command in a new container,
+    search: Search the Docker-Hub for images,
+    start: Start one or more stopped containers, 
+    stats: Display a live stream of container(s) resource usage statistics,
+    stop: Stop one or more running containers,
+    tag: Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE,
+    top: Display the running processes of a container, 
+    update: Update configuration of one or more containers, 
+    version: Display the Docker version information, 
+    wait: Block until one or more containers stop, then print exit codes
+}
+
+Options for a specific subcommand:
+  $> docker <docker-subcommand> --help
+
+************* Working with Docker Images ****************
+Docker Image --> BUILD --> Docker Container
+
+Can I access and dowload an image ?
+  $> docker run hello-world
+
+  ... Unable to find image locally
+  ... Pulling from Docker-Hub
+
+"Docker initially unable to find the hello-world image locally +++
+ Downloaded the image from Docker-Hub, the default repository +++
+ Once Image is downloaded, DOcker created a Container +++
+ My-Application within the container is executed
+ "
+OFFICIAL column --> OK (the company behind the project maintains the image)
+  $> docker search ubuntu
+  $> docker pull ubuntu
+  $> docker run ubuntu
+
+To see the images that have been downloaded to your computer:
+  $> docker images
+
+******************* Running a Docker Container **********************
+Run & Exit (after emitting a test image) ?
+
+Interactive Containers ...
+  like VMs but more resource-friendly !
+  Use "-it" --> Interactive shell access into the container 
+
+  $> docker run -it ubuntu ...
+    Output: root@d96b100f2f636:/#
+    d96b100f2f636 is Container-ID
+
+Run any command inside a container (ie update the package-database)
+  No need to run "sudo" ... already connected as root@container
+
+  $> apt update
+  $> apt install nodejs
+
+  Any change ONLY affects/ apply to .... MY-Container
+
+**************************  Managing Docker Containers ********************
+Docker environment = Containers Active/Running + Inactive/Stopped
+
+List all ACTIVES:
+  $> docker ps
+
+View all containers - active and inactive:
+  $> docker ps -a 
+
+View the latest container you created:
+  $> docker ps -l
+
+To start a stopped container:
+  $> docker start <container-ID/name>
+
+To stop a running container:
+  $> docker start <docker-ID/name>
+
+Remove a container (no longer need it):
+  $> docker rm <docker-ID/name>
+
+********** Commiting Changes in a Container to a Docker Image **************
+(1) Start a Docker Image 
+(2) Modify files 
+(3) In case of "docker rm" ... changes lost 
+
+How to save the state of a container --> New Image
+
+Previous example: 
+  Download & Run Docker Ubuntu
+  Update Package Database
+  Install NodeJS
+  
+  $> docker commit -m "commit-message" -a <Author Name> <container-ID> <repository>/<new-image-name>
+
+CAUTION ... When you commit an image ==> New image is saved LOCALLY
+            Upload the image to Docker Registry ==> "docker push"
+
+*********** Pushing Docker Images to Docker Repository *****************
+(1) Log into Docker Hub:
+  $> docker login -u <docker-registry-username>
+    ... Provide your <docker-registry-password>
+
+(2) Push the new image to repository:
+  $> docker push <docker-registry-repository>/<docker-image-name>
+
+ 
+
+
+
+
+
