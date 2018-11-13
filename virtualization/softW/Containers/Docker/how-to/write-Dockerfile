@@ -1,0 +1,239 @@
+************************
+**** FROM directive ****
+************************
+
+FROM debian:jessie 
+
+Most Dockerfiles start from a PARENT image.
+
+PARENT image --> your image is based on ... 
+  each subsequent declaration in Dockerfile modifies the parent
+
+BASE image --> Has no FROM declaration OR ... 
+  FROM scratch 
+
+*********************************
+******** RUN instruction ********
+*********************************
+Has two(2) forms:
+  1) RUN <command>
+  2) RUN ["executable", "param1", "param2"]
+
+the RUN instruction: 
+  (x) will execute any commands in a new layer on top of current image
+  (x) will commit results
+  (x) resulting committed image will be used for next step in Dockerfile
+
+!!! BEST PRACTICE !!! 
+  Always make your Dockerfile more readable, understandable, and maintainable
+  SPLIT long or complex RUN statements on multiple lines 
+
+Use a \ (backslash) ... Continue a long RUN instruction onto next line
+  RUN /bin/bash -c 'source $HOME/.bashrc; \
+    echo $HOME'
+
+APT-GET
+-------
+
+example:
+  RUN apt-get update && apt-get install -y \
+    package-bar \
+    package-baz \
+    package-foo 
+  
+Gotchas:
+  Avoid "RUN apt-get upgrade" 
+  Always combine "apt-get update && apt-get install" in same RUN statement
+  SOS ... Caching Issues:
+    FROM ubuntu:14.04
+    RUN apt-get update
+
+Well-formed RUN instruction:
+  RUN apt-get update && apt-get install -y \
+    aufs-tools \
+    automake \
+    build-essential \ 
+    curl \
+    dpkg-sig \
+    libcap-dev \
+    libsqlite3-dev \
+    mercurial \
+    reprepro \ 
+    ruby1.9.1 \
+    ruby1.9.1-dev \
+    s3cmd=1.1.* \
+  && rm -rf /var/lib/apt/lists/*
+
+  s3cmd ... specifies a version
+
+  Important ... When you clean up apt cache (rm -rf /var/lib/apt/lists/*)
+    reduces image-size ... since apt cache not stored into a layer !!!       
+    
+Using PIPES 
+-----------
+Pipe output of one command into another: 
+  RUN wget -O - https://some.site | wc -l > /number
+
+SOS .... Docker executes using the "/bin/sh -c" .. evaluates only last 
+
+Fail if error at ANY stage in the pipe then prepend:
+  RUN set -o pipefail && wget -O - https://....
+  
+*************************
+***  ENV instruction  ***
+*************************
+Form:
+  (1) ENV <key> <value> # A single variable set
+  (2) ENV <key>=<value> # Multiple variables set
+
+Usage: 
+  Set the environment variable <key> to the value <value>.
+  Available of all "descendant" Dockerfile commands
+  Can be replaced inline ... ${variable_name}
+
+example:
+  FROM busybox
+  ENV foo /bar
+  WORKDIR ${foo}  
+
+Environment variables are supported by instructions:
+  ADD, COPY, LABEL, WORKDIR
+
+Override environment variables using the:
+  $> docker run --env <key>=<value>
+
+********************************
+*** ADD or COPY instructions ***
+********************************
+
+ADD instruction
+---------------
+ADD <src>... <dest>
+ADD hom* /mydir/
+
+Copies new files/ directories or remote-file URLs from <src>
+  and adds them to the filesystem of the image at the path <dest>
+
+The "docker build" command ...
+  $> docker build [OPTIONS] PATH | URL  
+  builds Docker Images from {Dockerfile, "context"}
+
+A "build conext" is ... 
+  set of files in specified PATH or URL
+
+Build process can use .... 
+  A COPY instruction to reference a file in context
+
+URL parameter ... 
+  {Git repositories, pre-packaged tarball, plain text files}
+
+Example #1: Build with PATH
+  $> docker build .
+    PATH = . 
+    All files in local directory are sent to Docker daemon
+    The daemon is running on remote machine ... no parsing on client specified
+    ALL files at PATH get sent
+Example #2: Build with URL
+  $> docker build -f ctx/Dockerfile github.com/creack/docker-firefox
+    Will clone the GitHub repository and use the cloned as context
+    The Dockerfile can either be at the root of the repository, or
+      a path inside the repositoy ctx/ 
+
+*************************
+**** ARG instruction ****
+*************************
+ARG <name>[=<default value>]
+
+Defines a variable that user can pass at build-time:
+   (x) At Dockerfile argument is defined with a default value
+   (x) A user specifies a build argument:
+         $> docker build --build-arg <varname>=<value>
+
+Do Not Use ... build-time variables for passing secrets/ credentials
+
+Default values ... are optional 
+  If an ARG has a default value and no value passed at built-time ... use default
+
+Scope of ARG ... comes into effect from !!! line it is defined in Dockerfile !!!
+
+Environment variables defined with ENV .... Override ARG instructions ... with same name
+
+*****************************
+**** WORKDIR instruction ****
+*****************************
+WORKDIR /path/to/workdir
+
+Sets the working directory for any RUN, CMD, ENTRYPOINT, COPY and ADD 
+
+Can be used multiple times in a Dockerfile 
+If a relative path is provided ... relative to previous WORKDIR
+
+***********************
+*** CMD instruction ***
+***********************
+Forms:
+  (1) CMD ["executable", "param1", "param2"] ... exec form
+  (2) CMD ["param1", "param2"] ... default params to ENTRYPOINT
+  (3) CMD command param1 param2 ... shell form
+
+!!! SOS !!!
+  Only one CMD instruction in a Dockerfile 
+  If many ... Only the LAST will take effect
+
+Main purpose:
+  Provide defaults for an executing container 
+
+******************************
+*** ENTRYPOINT instruction ***
+******************************
+Forms: 
+  (1) ENTRYPOINT ["executable", "param1", "param2"]
+  (2) ENTRYPOINT command param1 param2
+
+Configure a container that will run as an executable:
+  $> docker run -i -t --rm -p 80:80 nginx
+
+Command line arguments to: 
+  $> docker run <image> -d
+Will pass "-d" to ... execForm of ENTRYPOINT
+Will override all CMD elements
+
+!!! SOS !!!
+  shellForm of ENTRYPOINT prevents any CMD or RUN arguments 
+  But Important -> Starts ARNTRYPOINT as a ... 
+    Subcommand of "/bin/sh -c" ... Does Not Pass Signals
+    The executable will not be container's  PID 1
+
+Example #1: 
+  Use execForm to set stable default commands and arguments
+  and after use CMD to set additional defaults that might change
+
+  FROM ubuntu
+  ENTRYPOINT ["top", "-b"]
+  CMD ["-c"]
+
+Example #2:
+  Run Apache in the foreground (i.e., as PID 1):
+    FROM debian:stable
+
+    RUN apt-get update && apt-get install -y --force-yes apache2
+    EXPOSE 80 443
+    VOLUME ["/var/www", "var/log/apache2", "/etc/apache2"]
+    ENTRYPOINT ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
+
+**************************
+*** VOLUME instruction ***
+**************************
+Form:
+  VOLUME ["/data"]
+
+Create a mount point with the specified name and marks it as ...
+  a holding externally mounted volumes from native host
+
+Example:
+  FROM ubuntu
+
+  RUN mkdir /myvol
+  RUN mkdir /myvol
+  RUN echo "hello world" > /myvol/greeting
+  VOLUME /myvol
