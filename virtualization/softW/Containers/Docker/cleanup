@@ -1,0 +1,40 @@
+1) *** List Images ***  
+List all top-level images:
+  $> docker images
+
+List all (+ intermediates) images
+  $> docker images --all
+
+2) *** List Containers ***
+Show only running containers:
+  $> docker ps
+
+List all containers:
+  $> docker ps -all
+
+3) *** Remove Images ***
+  $> docker rmi <image-id>
+
+SOS: Error response from daemon: conflict: 
+     unable to remove repository reference "vlab-ext" (must force) - 
+     container fac1620666e3 is using its referenced image fc304ad8ee0e
+     -----------------------------------------------------------------
+
+First you have to remove the associated container !
+
+4) *** Remove Container ***
+  $> docker rm <container-id>
+
+SOS: Error response from daemon: 
+     You cannot remove a running container fac1620666e3666e241151e99224b74118b4d2181b441109325593aa92f0e11b. 
+     Stop the container before attempting removal or use -f
+
+SOS: Remove the volumes associated with the container
+  $> docker rm --volumes <container-id>
+  
+5) *** Stop Containers ***
+Stop one or more running containers
+  $> docker stop <container-id>
+
+Seconds to wait for stop before killing it:
+  $> docker stop --time 10 <container-id>
