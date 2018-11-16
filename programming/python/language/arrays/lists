@@ -1,0 +1,58 @@
+A list contains a collection of items - always use brackets !
+
+Creating a list:
+>>> sales = []
+
+Append items in the list:
+>>> sales.append(100)
+
+View the contents of the list:
+>>> sales
+
+Access an item in the list:
+>>> sales[1] = 101
+
+SOS ... Access start of the list:
+>>> sales[0] = 'Python'
+
+! A list can contain lots of different types of data !
+
+Read in a list 
+--------------
+Use a "for" loop for all stored values 
+(x) In Python the upper limit of a "range" is EXCLUSIVE
+
+CODE ANALYSIS
+for count in range(1, 11):
+  prompt = 'Enter the sales for stand ' + str(count) + ': '
+  sales.append(read_int(prompt))
+
+no_of_stands = read_int('Enter the number of stands" ')
+for count in range(1, no_of_stands+1):
+  prompt = 'Enter the sales for stand ' + str(count) + ': '
+  sales.append(read_int(prompt))
+
+Display a list 
+--------------
+Use a "for" loop to work through the items in a list
+
+Important: Refactor Programs into Functions
+Never code a long sequence of statements.
+
+CODE ANALYSIS
+def print_sales():
+ '''Prints the sales figures on the screen with a heading.
+ '''
+ # print a heading 
+ print('Sales figures')
+
+ # initialize the stand counter
+ count = 1
+ sales[0] = 99
+
+ # work through the sales figures
+ for sales_value in sales:
+   print( 'Sales for stand ', count, ' are: ', sales_value )
+   count = count + 1
+
+

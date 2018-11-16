@@ -1,0 +1,29 @@
+class A(object):
+  def foo(self, x):
+    print("executing foo(%s,%s)"%(self,x))
+
+  @classmethod
+  def class_foo(cls, x):
+    print("executing class_foo(%s,%s)"%(cls,x))
+
+  @staticmethod
+  def static_foo(x):
+    print("executing static_foo(%s)"%x)
+
+a = A()
+
+Simple method: a.foo(1)
+
+Class method : A.class_foo(1)
+
+Static method: a.static_foo(1) , A.static_foo(1)
+
+A "staticmethod" ...
+  A method that knows NOTHING about the class or instance it was called on.
+  It just gets the arguments that were passed , no IMPLICIT first argument.
+
+A "classmethod" ...
+  A method that gets passed the class it was called on.
+
+
+
