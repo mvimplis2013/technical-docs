@@ -1,7 +1,8 @@
-1) A typo or a wromg path specified in the "import" statement
+1) A typo or a wrong path specified in the "import" statement
 
 2) Execution context which requires an entry addition into "sys.path"
-   !!!! $> PYTHONPATH=./ python deeplabview/property.py
+   !!!! $> export PYTHONPATH=./ python deeplabview/property.py
+   export PYTHONPATH="$PYTHONPATH:./modules"
 
 3) Circular dependency => 
    module A {requires something} from ... module B
