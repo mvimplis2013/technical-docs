@@ -11,7 +11,7 @@ Good rule of thumb ... Ten(10) lines
 
 Test Driven Development (TDD)
 
-Checking Values with the ASSERTEQUALS Method
+Checking Values with the ASSERTEQUAL Method
 --------------------------------------------
 (x) Have some working code 
 (x) Write the test to check it and see if you pass the argument --> get expected result
@@ -55,3 +55,17 @@ The method takes 3 arguments:
   The first is ... the type of exception you expect to be raised 
   The second is ... the method under test that you expect to raise the exception 
   The third is ... the argument to the method
+
+# ** assertIsInstance(obj, class, msg=None) **
+Assert that ... an object is an instance of a specified class 
+
+config = self.get_config('toml')
+  self.assertIsInstance(config, TomlParser)
+
+$> pytest test/config_toml_test.py
+
+# ** assertIn(member, container, msg=None) **
+Assert that ... 
+  whether a value is in a container (hashable) such as a list or tuple
+
+
