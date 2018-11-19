@@ -1,0 +1,5 @@
+Locate the {Binary, Source and Manual} .... for a command
+$>whereis python
+
+Show the full path name of a command
+$>which python

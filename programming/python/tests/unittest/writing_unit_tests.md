@@ -44,6 +44,14 @@ test method naming ... test_<what-it-does>
 assertEqual(value1, value2) ... checks if value1 EQ to value2
 
 # ** Checking Exception Handling with ASSERTRAISES **
----------------------------------------------
 Definition:
-  The <assert>
+  The <assertRaises> method in the <unittest> package ... 
+    Provides you with means to check that a method raises an exception under certain circumstances
+
+Example:
+  self.assertRaises(TypeError, self.calc.add, "Hello", "World")
+
+The method takes 3 arguments:
+  The first is ... the type of exception you expect to be raised 
+  The second is ... the method under test that you expect to raise the exception 
+  The third is ... the argument to the method
